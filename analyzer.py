@@ -1,9 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set
-import re
-import stanza
-from pathlib import Path
+from typing import Dict, List, Set
+import spacy
 
 CLAUSE_RELS = {'root','advcl','ccomp','xcomp','acl','acl:relcl','csubj','csubj:pass','parataxis'}
 SUBJECT_RELS = {'nsubj','nsubj:pass','csubj','csubj:pass'}
@@ -21,21 +19,79 @@ class IdFactory:
         self.counters[kind] = self.counters.get(kind, 0) + 1
         return f'S{self.sent:02d}-{kind.upper()}-{self.counters[kind]:03d}'
 
+@dataclass
+class Word:
+    id: int
+    text: str
+    lemma: str
+    upos: str
+    xpos: str
+    head: int
+    deprel: str
+
+@dataclass
+class Sentence:
+    text: str
+    words: List[Word]
+
 class EnglishStructureAnalyzer:
     def __init__(self):
-        model_dir = str(Path(__file__).parent / 'stanza_resources')
-        self.nlp = stanza.Pipeline(
-            lang='en', processors='tokenize,mwt,pos,lemma,depparse',
-            dir=model_dir, use_gpu=False, verbose=False, download_method=None
-        )
+        # Disable NER because this viewer only needs syntax/POS/lemmatization.
+        self.nlp = spacy.load('en_core_web_sm', disable=['ner'])
+
+    def _convert_sentence(self, span) -> Sentence:
+        """Convert spaCy's parse to the UD-like shape used by the existing viewer."""
+        tokens = list(span)
+        overrides = {}
+
+        # spaCy attaches a preposition to the governor and its object below it.
+        # The old Stanza/UD-oriented code expects the nominal as obl and the
+        # preposition as case, so normalize that small structural difference.
+        for tok in tokens:
+            if tok.dep_ == 'prep':
+                pobj = next((c for c in tok.children if c.dep_ == 'pobj'), None)
+                if pobj is not None:
+                    overrides[tok.i] = ('case', pobj.i + 1)
+                    overrides[pobj.i] = ('obl', tok.head.i + 1)
+
+        dep_map = {
+            'ROOT': 'root',
+            'nsubjpass': 'nsubj:pass',
+            'csubjpass': 'csubj:pass',
+            'auxpass': 'aux:pass',
+            'dobj': 'obj',
+            'dative': 'iobj',
+            'relcl': 'acl:relcl',
+            'poss': 'nmod:poss',
+            'prt': 'compound:prt',
+            'npadvmod': 'npmod',
+        }
+
+        words = []
+        for tok in tokens:
+            dep = dep_map.get(tok.dep_, tok.dep_)
+            head = 0 if tok.dep_ == 'ROOT' else tok.head.i + 1
+            if tok.i in overrides:
+                dep, head = overrides[tok.i]
+            words.append(Word(
+                id=tok.i + 1,
+                text=tok.text,
+                lemma=tok.lemma_,
+                upos=tok.pos_,
+                xpos=tok.tag_,
+                head=head,
+                deprel=dep,
+            ))
+        return Sentence(text=span.text, words=words)
 
     def analyze(self, text: str) -> dict:
         doc = self.nlp(text)
+        sentences = [self._convert_sentence(s) for s in doc.sents]
         return {
             'schema_version': '1.0',
-            'engine': 'stanza-ud',
+            'engine': 'spacy-en_core_web_sm',
             'text': text,
-            'sentences': [self._sentence(s, i+1) for i, s in enumerate(doc.sentences)]
+            'sentences': [self._sentence(s, i+1) for i, s in enumerate(sentences)]
         }
 
     def _sentence(self, sent, idx: int) -> dict:
@@ -100,7 +156,6 @@ class EnglishStructureAnalyzer:
             if target:
                 relations.append({'id':ids.make('rel'),'type':'complements','source':comp['id'],'target':target})
 
-        # Clausal arguments are represented both as child clauses and as a core slot reference.
         child_clause_refs = []
         for ch in clause_heads:
             if ch.id == head.id or ch.head != head.id: continue
@@ -109,7 +164,18 @@ class EnglishStructureAnalyzer:
             core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
 
-        # Copular UD: lexical predicate is head, copula is child. Treat predicate as C, copula as V.
+        # spaCy normally makes "be" the head and uses attr/acomp/oprd for
+        # complements. Handle that representation directly.
+        spacy_comps = [w for w in direct if w.deprel in {'attr','acomp','oprd'}]
+        if (head.lemma or '').lower() == 'be' and spacy_comps:
+            for pred_word in spacy_comps:
+                pred = self._element(pred_word, 'C', children, ids)
+                pred['complement_of'] = 'S'
+                core['C'].append(pred)
+                if core['S']:
+                    relations.append({'id':ids.make('rel'),'type':'complements','source':pred['id'],'target':core['S'][0]['id']})
+
+        # Keep compatibility with UD-style copular input if encountered.
         copulas = [w for w in direct if w.deprel == 'cop']
         if copulas:
             core['V'] = [{'id':ids.make('v'),'role':'V','text':' '.join(w.text for w in sorted(copulas, key=lambda x:x.id)), 'token_ids':[w.id for w in sorted(copulas,key=lambda x:x.id)], 'head_token':copulas[0].id}]
@@ -119,7 +185,6 @@ class EnglishStructureAnalyzer:
                 relations.append({'id':ids.make('rel'),'type':'complements','source':pred['id'],'target':core['S'][0]['id']})
 
         if not core['S'] and ctype == 'main' and head.upos in {'VERB','AUX'}:
-            # imperative is a useful tag; other subjectless parses stay uncertain
             if head.xpos == 'VB': tags.add('imperative_candidate')
             else: warnings.append(f'{cid}: 主語を明確に特定できませんでした。')
 
@@ -144,15 +209,13 @@ class EnglishStructureAnalyzer:
 
     def _complements(self, head, direct, children, ids):
         out=[]
-        # adjective/noun complement after selected linking verbs in non-copular UD analyses
         if self._linking_verb(head.lemma):
             for w in direct:
-                if w.deprel in {'xcomp','obl'} and w.upos in {'ADJ','NOUN','PROPN'}:
+                if w.deprel in {'xcomp','obl','attr','acomp'} and w.upos in {'ADJ','NOUN','PROPN'}:
                     out.append(self._element(w,'C',children,ids))
-        # object complement often xcomp
         if self._object_complement_verb(head.lemma):
             for w in direct:
-                if w.deprel == 'xcomp' and w.upos in {'ADJ','NOUN','PROPN','VERB'}:
+                if w.deprel in {'xcomp','oprd'} and w.upos in {'ADJ','NOUN','PROPN','VERB'}:
                     out.append(self._element(w,'C',children,ids))
         return out
 
@@ -165,7 +228,7 @@ class EnglishStructureAnalyzer:
         def walk(node):
             allowed.add(node.id)
             for c in children.get(node.id, []):
-                if c.deprel in NP_EXPAND or c.deprel in {'advmod','fixed','compound:prt'}:
+                if c.deprel in NP_EXPAND or c.deprel in {'advmod','fixed','compound:prt','case'}:
                     walk(c)
         walk(w)
         return allowed
@@ -193,7 +256,6 @@ class EnglishStructureAnalyzer:
         return phrases
 
     def _global_relations(self, words, children, ids, relations, tags):
-        token_node = {w.id:f'TOKEN-{w.id}' for w in words}
         for w in words:
             if w.deprel in {'amod','advmod','nmod','acl','acl:relcl','appos'} and w.head:
                 relations.append({'id':ids.make('rel'),'type':'modifies','source_token':w.id,'target_token':w.head})
@@ -209,7 +271,6 @@ class EnglishStructureAnalyzer:
                     tags.add('relative_pronoun_omission_candidate')
                     relations.append({'id':ids.make('rel'),'type':'omitted_element','source_clause_head':w.id,'target_token':w.head,'note':'relative element may be omitted'})
             if w.lemma in {'more','less','than','as'}: tags.add('comparison_candidate')
-        # Surface inversion candidate: aux precedes nominal subject under same predicate.
         for h in words:
             ch=children.get(h.id,[])
             subs=[x for x in ch if x.deprel in SUBJECT_RELS]
