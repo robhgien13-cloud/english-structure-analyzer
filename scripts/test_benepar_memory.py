@@ -38,12 +38,13 @@ def worker(mode):
             except Exception as e:
                 report["trim_warning"] = str(e)
             sample("after_cleanup")
-        with torch.inference_mode():
-            for i, sentence in enumerate(SENTENCES):
-                t = time.perf_counter()
-                doc = nlp(sentence)
-                report.setdefault("parses", []).append({"text": sentence, "parse": list(doc.sents)[0]._.parse_string, "seconds": round(time.perf_counter()-t, 3)})
-                sample("parsed_" + str(i + 1))
+        # benepar / torch_struct uses autograd internally to decode its parse tree.
+        # Do not disable gradients with inference_mode() or no_grad().
+        for i, sentence in enumerate(SENTENCES):
+            t = time.perf_counter()
+            doc = nlp(sentence)
+            report.setdefault("parses", []).append({"text": sentence, "parse": list(doc.sents)[0]._.parse_string, "seconds": round(time.perf_counter()-t, 3)})
+            sample("parsed_" + str(i + 1))
         report["status"] = "success"
     except Exception:
         report["status"] = "failed"
