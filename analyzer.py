@@ -90,6 +90,27 @@ class EnglishStructureAnalyzer:
                     overrides[main.i] = ('root', 0)
                     overrides[root.i] = ('advcl', main.i + 1)
 
+        # In short relative-clause sentences spaCy may incorrectly choose the
+        # subject noun as ROOT and label the finite main verb 'advmod'.
+        # Only repair this narrow pattern when the noun has a relative clause.
+        if (root is not None and root.pos_ in {'NOUN', 'PROPN', 'PRON'}
+                and any(c.dep_ == 'relcl' for c in root.children)):
+            finite_verbs = [c for c in root.children
+                            if c.dep_ == 'advmod' and c.pos_ in {'VERB', 'AUX'}
+                            and c.tag_ in {'VBD', 'VBP', 'VBZ'}]
+            if len(finite_verbs) == 1:
+                main_verb = finite_verbs[0]
+                overrides[main_verb.i] = ('root', 0)
+                overrides[root.i] = ('nsubj', main_verb.i + 1)
+
+        # spaCy occasionally labels an object-predicative adjective as
+        # advmod (e.g. 'painted the door red'). Keep it distinct from adverbs.
+        for tok in tokens:
+            if (tok.dep_ == 'advmod' and tok.pos_ == 'ADJ'
+                    and self._object_complement_verb(tok.head.lemma_)
+                    and any(c.dep_ in {'dobj', 'obj'} for c in tok.head.children)):
+                overrides[tok.i] = ('oprd', tok.head.i + 1)
+
         dep_map = {
             'ROOT': 'root',
             'nsubjpass': 'nsubj:pass',
