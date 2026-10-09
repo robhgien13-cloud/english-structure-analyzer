@@ -130,5 +130,133 @@ class AnalyzerRegressionTests(unittest.TestCase):
         self.assertEqual(len(sentence['clauses']), 2)
 
 
+    def test_passive_voice(self):
+        sentence = parse([
+            ('The', 'the', 'DET', 'DT', 'det', 1),
+            ('letter', 'letter', 'NOUN', 'NN', 'nsubjpass', 3),
+            ('was', 'be', 'AUX', 'VBD', 'auxpass', 3),
+            ('written', 'write', 'VERB', 'VBN', 'ROOT', 3),
+            ('yesterday', 'yesterday', 'ADV', 'RB', 'advmod', 3),
+        ])
+        core = main(sentence)
+        self.assertEqual([x['text'] for x in core['S']], ['The letter'])
+        self.assertEqual([x['text'] for x in core['V']], ['was written'])
+        self.assertEqual([x['text'] for x in core['M']], ['yesterday'])
+
+    def test_auxiliary_attached_subject(self):
+        sentence = parse([
+            ('My', 'my', 'PRON', 'PRP
+    unittest.main()
+, 'poss', 1),
+            ('mother', 'mother', 'NOUN', 'NN', 'nsubj', 2),
+            ('was', 'be', 'AUX', 'VBD', 'aux', 3),
+            ('cooking', 'cook', 'VERB', 'VBG', 'ROOT', 3),
+            ('dinner', 'dinner', 'NOUN', 'NN', 'dobj', 3),
+        ])
+        core = main(sentence)
+        self.assertEqual([x['text'] for x in core['S']], ['My mother'])
+        self.assertEqual([x['text'] for x in core['O']], ['dinner'])
+
+    def test_modal_auxiliary(self):
+        sentence = parse([
+            ('She', 'she', 'PRON', 'PRP', 'nsubj', 2),
+            ('will', 'will', 'AUX', 'MD', 'aux', 2),
+            ('come', 'come', 'VERB', 'VB', 'ROOT', 2),
+        ])
+        self.assertEqual([x['text'] for x in main(sentence)['V']], ['will come'])
+
+    def test_direct_object_and_adverb(self):
+        sentence = parse([
+            ('He', 'he', 'PRON', 'PRP', 'nsubj', 1),
+            ('read', 'read', 'VERB', 'VBD', 'ROOT', 1),
+            ('a', 'a', 'DET', 'DT', 'det', 3),
+            ('book', 'book', 'NOUN', 'NN', 'dobj', 1),
+            ('quickly', 'quickly', 'ADV', 'RB', 'advmod', 1),
+        ])
+        core = main(sentence)
+        self.assertEqual([x['text'] for x in core['O']], ['a book'])
+        self.assertEqual([x['text'] for x in core['M']], ['quickly'])
+
+    def test_negative_auxiliary(self):
+        sentence = parse([
+            ('I', 'I', 'PRON', 'PRP', 'nsubj', 3),
+            ('do', 'do', 'AUX', 'VBP', 'aux', 3),
+            ('not', 'not', 'PART', 'RB', 'neg', 3),
+            ('agree', 'agree', 'VERB', 'VB', 'ROOT', 3),
+        ])
+        self.assertEqual([x['text'] for x in main(sentence)['V']], ['do not agree'])
+        self.assertIn('negation', sentence['tags'])
+
+    def test_infinitive_clause(self):
+        sentence = parse([
+            ('I', 'I', 'PRON', 'PRP', 'nsubj', 1),
+            ('want', 'want', 'VERB', 'VBP', 'ROOT', 1),
+            ('to', 'to', 'PART', 'TO', 'aux', 3),
+            ('leave', 'leave', 'VERB', 'VB', 'xcomp', 1),
+        ])
+        self.assertEqual(len(sentence['clauses']), 2)
+        self.assertEqual([x['text'] for x in main(sentence)['V']], ['want'])
+
+    def test_relative_clause(self):
+        sentence = parse([
+            ('The', 'the', 'DET', 'DT', 'det', 1),
+            ('man', 'man', 'NOUN', 'NN', 'nsubj', 4),
+            ('who', 'who', 'PRON', 'WP', 'nsubj', 3),
+            ('smiled', 'smile', 'VERB', 'VBD', 'relcl', 1),
+            ('left', 'leave', 'VERB', 'VBD', 'ROOT', 4),
+        ])
+        self.assertEqual(len(sentence['clauses']), 2)
+        self.assertIn('relative_clause', sentence['tags'])
+
+    def test_adverbial_clause(self):
+        sentence = parse([
+            ('When', 'when', 'SCONJ', 'WRB', 'mark', 2),
+            ('she', 'she', 'PRON', 'PRP', 'nsubj', 2),
+            ('arrived', 'arrive', 'VERB', 'VBD', 'advcl', 5),
+            (',', ',', 'PUNCT', ',', 'punct', 2),
+            ('we', 'we', 'PRON', 'PRP', 'nsubj', 5),
+            ('left', 'leave', 'VERB', 'VBD', 'ROOT', 5),
+        ])
+        self.assertEqual(len(sentence['clauses']), 2)
+        self.assertEqual([x['text'] for x in main(sentence)['S']], ['we'])
+
+    def test_object_complement(self):
+        sentence = parse([
+            ('They', 'they', 'PRON', 'PRP', 'nsubj', 1),
+            ('painted', 'paint', 'VERB', 'VBD', 'ROOT', 1),
+            ('the', 'the', 'DET', 'DT', 'det', 3),
+            ('door', 'door', 'NOUN', 'NN', 'dobj', 1),
+            ('red', 'red', 'ADJ', 'JJ', 'oprd', 1),
+        ])
+        core = main(sentence)
+        self.assertEqual([x['text'] for x in core['O']], ['the door'])
+        self.assertEqual([x['text'] for x in core['C']], ['red'])
+
+    def test_imperative_without_subject(self):
+        sentence = parse([
+            ('Open', 'open', 'VERB', 'VB', 'ROOT', 0),
+            ('the', 'the', 'DET', 'DT', 'det', 2),
+            ('door', 'door', 'NOUN', 'NN', 'dobj', 0),
+        ])
+        self.assertEqual(main(sentence)['S'], [])
+        self.assertIn('imperative_candidate', sentence['tags'])
+
+    def test_existential_there(self):
+        sentence = parse([
+            ('There', 'there', 'PRON', 'EX', 'expl', 1),
+            ('are', 'be', 'AUX', 'VBP', 'ROOT', 1),
+            ('books', 'book', 'NOUN', 'NNS', 'attr', 1),
+        ])
+        self.assertIn('existential_there', sentence['tags'])
+
+    def test_coordination_tag(self):
+        sentence = parse([
+            ('She', 'she', 'PRON', 'PRP', 'nsubj', 1),
+            ('sang', 'sing', 'VERB', 'VBD', 'ROOT', 1),
+            ('and', 'and', 'CCONJ', 'CC', 'cc', 3),
+            ('danced', 'dance', 'VERB', 'VBD', 'conj', 1),
+        ])
+        self.assertIn('coordination', sentence['tags'])
+
 if __name__ == '__main__':
     unittest.main()
