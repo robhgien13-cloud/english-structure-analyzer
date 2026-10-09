@@ -95,9 +95,11 @@ class EnglishStructureAnalyzer:
         # Only repair this narrow pattern when the noun has a relative clause.
         if (root is not None and root.pos_ in {'NOUN', 'PROPN', 'PRON'}
                 and any(c.dep_ == 'relcl' for c in root.children)):
-            finite_verbs = [c for c in root.children
-                            if c.dep_ == 'advmod' and c.pos_ in {'VERB', 'AUX'}
-                            and c.tag_ in {'VBD', 'VBP', 'VBZ'}]
+            relative_verbs = [c for c in root.children if c.dep_ == 'relcl']
+            finite_verbs = [tok for tok in tokens
+                            if tok.dep_ == 'advmod' and tok.pos_ in {'VERB', 'AUX'}
+                            and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
+                            and (tok.head is root or tok.head in relative_verbs)]
             if len(finite_verbs) == 1:
                 main_verb = finite_verbs[0]
                 overrides[main_verb.i] = ('root', 0)
