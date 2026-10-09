@@ -54,6 +54,15 @@ class EnglishStructureAnalyzer:
                     overrides[tok.i] = ('case', pobj.i + 1)
                     overrides[pobj.i] = ('obl', tok.head.i + 1)
 
+        # Attach subjects of finite auxiliaries to the lexical verb.
+        for tok in tokens:
+            if tok.dep_ in {'nsubj', 'nsubjpass'}:
+                aux = tok.head
+                if (aux.pos_ == 'AUX' and aux.dep_ in {'aux', 'auxpass'}
+                        and aux.head is not aux
+                        and aux.head.pos_ in {'VERB', 'AUX'}):
+                    overrides[tok.i] = (tok.dep_, aux.head.i + 1)
+
         # Treat non-finite adjectival/nominal complements as object complements.
         for tok in tokens:
             if (tok.dep_ in {'ccomp', 'xcomp', 'oprd'}
