@@ -54,6 +54,33 @@ class EnglishStructureAnalyzer:
                     overrides[tok.i] = ('case', pobj.i + 1)
                     overrides[pobj.i] = ('obl', tok.head.i + 1)
 
+        # Treat non-finite adjectival/nominal complements as object complements.
+        for tok in tokens:
+            if (tok.dep_ in {'ccomp', 'xcomp', 'oprd'}
+                    and tok.pos_ in {'ADJ', 'NOUN', 'PROPN'}
+                    and self._object_complement_verb(tok.head.lemma_)
+                    and not any(c.dep_ in {'aux', 'auxpass', 'cop'} for c in tok.children)):
+                overrides[tok.i] = ('oprd', tok.head.i + 1)
+                for child in tok.children:
+                    if child.dep_ == 'nsubj':
+                        overrides[child.i] = ('obj', tok.head.i + 1)
+
+        # Recover a finite main clause from a misidentified initial when-clause.
+        root = next((tok for tok in tokens if tok.dep_ == 'ROOT'), None)
+        if root is not None and any(c.dep_ == 'mark' for c in root.children):
+            comma = next((tok for tok in tokens if tok.text == ',' and tok.i > root.i), None)
+            if comma is not None:
+                candidates = [tok for tok in root.children
+                              if tok.i > comma.i and tok.dep_ in {'advcl', 'ccomp', 'conj', 'parataxis'}
+                              and tok.pos_ in {'VERB', 'AUX'}
+                              and any(c.dep_ in {'nsubj', 'nsubjpass'} and c.i > comma.i for c in tok.children)
+                              and (tok.tag_ in {'VBD', 'VBP', 'VBZ', 'MD'}
+                                   or any(c.dep_ in {'aux', 'auxpass'} and c.tag_ in {'VBD', 'VBP', 'VBZ', 'MD'} for c in tok.children))]
+                if len(candidates) == 1:
+                    main = candidates[0]
+                    overrides[main.i] = ('root', 0)
+                    overrides[root.i] = ('advcl', main.i + 1)
+
         dep_map = {
             'ROOT': 'root',
             'nsubjpass': 'nsubj:pass',
@@ -104,7 +131,12 @@ class EnglishStructureAnalyzer:
                 children[w.head].append(w)
         roots = [w for w in words if w.head == 0]
         root = roots[0] if roots else words[0]
-        clause_heads = [w for w in words if w.deprel in CLAUSE_RELS or w.head == 0]
+        clause_heads = [w for w in words if w.head == 0 or
+                        (w.deprel in CLAUSE_RELS and not
+                         (w.deprel == 'xcomp' and w.upos in {'ADJ', 'NOUN', 'PROPN'}
+                          and w.head in by_id and
+                          (self._linking_verb(by_id[w.head].lemma)
+                           or self._object_complement_verb(by_id[w.head].lemma))))]
         clause_heads = sorted({w.id:w for w in clause_heads}.values(), key=lambda w:w.id)
         clause_map = {w.id: ids.make('cl') for w in clause_heads}
         relations, tags, warnings = [], set(), []
@@ -152,7 +184,8 @@ class EnglishStructureAnalyzer:
         complements = self._complements(head, direct, children, ids)
         core['C'].extend(complements)
         for comp in complements:
-            target = core['O'][-1]['id'] if core['O'] and self._object_complement_verb(head.lemma) else (core['S'][-1]['id'] if core['S'] else None)
+            comp['complement_of'] = 'O' if core['O'] and self._object_complement_verb(head.lemma) else 'S'
+            target = core[comp['complement_of']][-1]['id'] if core[comp['complement_of']] else None
             if target:
                 relations.append({'id':ids.make('rel'),'type':'complements','source':comp['id'],'target':target})
 
@@ -163,17 +196,6 @@ class EnglishStructureAnalyzer:
             ref = {'id':ids.make(role.lower()), 'role':role, 'text':self._span_text(ch, children), 'token_ids':sorted(self._subtree_ids(ch.id, children)), 'head_token':ch.id, 'clause_ref':clause_map[ch.id]}
             core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
-
-        # spaCy normally makes "be" the head and uses attr/acomp/oprd for
-        # complements. Handle that representation directly.
-        spacy_comps = [w for w in direct if w.deprel in {'attr','acomp','oprd'}]
-        if (head.lemma or '').lower() == 'be' and spacy_comps:
-            for pred_word in spacy_comps:
-                pred = self._element(pred_word, 'C', children, ids)
-                pred['complement_of'] = 'S'
-                core['C'].append(pred)
-                if core['S']:
-                    relations.append({'id':ids.make('rel'),'type':'complements','source':pred['id'],'target':core['S'][0]['id']})
 
         # Keep compatibility with UD-style copular input if encountered.
         copulas = [w for w in direct if w.deprel == 'cop']
@@ -211,11 +233,13 @@ class EnglishStructureAnalyzer:
         out=[]
         if self._linking_verb(head.lemma):
             for w in direct:
-                if w.deprel in {'xcomp','obl','attr','acomp'} and w.upos in {'ADJ','NOUN','PROPN'}:
+                if ((w.deprel in {'xcomp','obl','attr','acomp'} and w.upos in {'ADJ','NOUN','PROPN'})
+                        or ((head.lemma or '').lower() == 'be' and w.deprel in {'attr','acomp','oprd'})):
                     out.append(self._element(w,'C',children,ids))
         if self._object_complement_verb(head.lemma):
             for w in direct:
-                if w.deprel in {'xcomp','oprd'} and w.upos in {'ADJ','NOUN','PROPN','VERB'}:
+                if ((w.deprel in {'xcomp','oprd'} and w.upos in {'ADJ','NOUN','PROPN'})
+                        or (w.deprel == 'oprd' and w.upos == 'VERB')):
                     out.append(self._element(w,'C',children,ids))
         return out
 
