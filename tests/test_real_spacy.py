@@ -75,12 +75,13 @@ class RealSpacyIntegrationTests(unittest.TestCase):
                 sentence = self.analyze_one(case["text"])
                 main = next(c for c in sentence["clauses"] if c["type"] == "main")
                 core = main["core"]
-                self.assertIn(case["main_subject"], [e["text"] for e in core["S"]])
-                self.assertIn(case["main_verb"], [e["text"] for e in core["V"]])
+                diagnostic = {"clauses": [{"type": c["type"], "text": c["text"], "core": c["core"]} for c in sentence["clauses"]], "tokens": [{"text": t["text"], "head": t["head"], "deprel": t["deprel"]} for t in sentence["tokens"]]}
+                self.assertIn(case["main_subject"], [e["text"] for e in core["S"]], diagnostic)
+                self.assertIn(case["main_verb"], [e["text"] for e in core["V"]], diagnostic)
                 if "main_object" in case:
-                    self.assertIn(case["main_object"], [e["text"] for e in core["O"]])
+                    self.assertIn(case["main_object"], [e["text"] for e in core["O"]], diagnostic)
                 if "main_complement" in case:
-                    self.assertIn(case["main_complement"], [e["text"] for e in core["C"]])
+                    self.assertIn(case["main_complement"], [e["text"] for e in core["C"]], diagnostic)
                 if "required_clause_type" in case:
                     self.assertIn(case["required_clause_type"],
                                   [c["type"] for c in sentence["clauses"]])
