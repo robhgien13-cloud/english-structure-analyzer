@@ -1,0 +1,202 @@
+[
+  {
+    "text": "She is happy.",
+    "root": "She",
+    "subject": "happy"
+  },
+  {
+    "text": "I gave him a present.",
+    "root": "gave",
+    "subject": "I"
+  },
+  {
+    "text": "When I arrived home, my mother was cooking dinner.",
+    "root": "cooking",
+    "subject": "mother"
+  },
+  {
+    "text": "The man who smiled left.",
+    "root": "left",
+    "subject": "man"
+  },
+  {
+    "text": "They painted the door red.",
+    "root": "painted",
+    "subject": "They"
+  },
+  {
+    "text": "The girl who lives next door sings beautifully.",
+    "root": "sings",
+    "subject": "girl"
+  },
+  {
+    "text": "The book that I bought yesterday is interesting.",
+    "root": "is",
+    "subject": "book"
+  },
+  {
+    "text": "Although it was raining, we went outside.",
+    "root": "went",
+    "subject": "we"
+  },
+  {
+    "text": "If you study hard, you will pass the exam.",
+    "root": "pass",
+    "subject": "you"
+  },
+  {
+    "text": "I know that she is honest.",
+    "root": "know",
+    "subject": "I"
+  },
+  {
+    "text": "What he said surprised everyone.",
+    "root": "surprised",
+    "subject": "What"
+  },
+  {
+    "text": "The teacher asked us to be quiet.",
+    "root": "asked",
+    "subject": "teacher"
+  },
+  {
+    "text": "She made me laugh.",
+    "root": "made",
+    "subject": "She"
+  },
+  {
+    "text": "I found the movie boring.",
+    "root": "found",
+    "subject": "I"
+  },
+  {
+    "text": "There are three books on the desk.",
+    "root": "are",
+    "subject": "books"
+  },
+  {
+    "text": "He has been studying English for years.",
+    "root": "studying",
+    "subject": "He"
+  },
+  {
+    "text": "The window was broken by the wind.",
+    "root": "broken",
+    "subject": "window"
+  },
+  {
+    "text": "The boy standing near the door is my brother.",
+    "root": "is",
+    "subject": "boy"
+  },
+  {
+    "text": "Having finished her homework, she went to bed.",
+    "root": "went",
+    "subject": "she"
+  },
+  {
+    "text": "Not knowing what to say, I remained silent.",
+    "root": "remained",
+    "subject": "I"
+  },
+  {
+    "text": "I saw a dog running across the street.",
+    "root": "saw",
+    "subject": "I"
+  },
+  {
+    "text": "She told me where she had hidden the key.",
+    "root": "told",
+    "subject": "She"
+  },
+  {
+    "text": "The more you practice, the better you become.",
+    "root": "become",
+    "subject": "you"
+  },
+  {
+    "text": "It is important to get enough sleep.",
+    "root": "is",
+    "subject": "It"
+  },
+  {
+    "text": "To learn a language takes time.",
+    "root": "takes",
+    "subject": "To"
+  },
+  {
+    "text": "Neither John nor Mary was available.",
+    "root": "was",
+    "subject": "John"
+  },
+  {
+    "text": "He not only sings but also plays the piano.",
+    "root": "sings",
+    "subject": "He"
+  },
+  {
+    "text": "I wonder whether they will arrive on time.",
+    "root": "wonder",
+    "subject": "I"
+  },
+  {
+    "text": "The house in which I grew up was sold.",
+    "root": "sold",
+    "subject": "house"
+  },
+  {
+    "text": "The woman whose son won the prize was delighted.",
+    "root": "was",
+    "subject": "woman"
+  },
+  {
+    "text": "Had I known the truth, I would have acted differently.",
+    "root": "acted",
+    "subject": "I"
+  },
+  {
+    "text": "Never have I seen such a beautiful view.",
+    "root": "seen",
+    "subject": "I"
+  },
+  {
+    "text": "The reason why she left remains unclear.",
+    "root": "remains",
+    "subject": "reason"
+  },
+  {
+    "text": "He is taller than I expected.",
+    "root": "is",
+    "subject": "He"
+  },
+  {
+    "text": "She wants him to become a doctor.",
+    "root": "wants",
+    "subject": "She"
+  },
+  {
+    "text": "The news that he had resigned shocked us.",
+    "root": "shocked",
+    "subject": "news"
+  },
+  {
+    "text": "By the time we arrived, the movie had started.",
+    "root": "started",
+    "subject": "movie"
+  },
+  {
+    "text": "I had my hair cut yesterday.",
+    "root": "had",
+    "subject": "I"
+  },
+  {
+    "text": "The student to whom I spoke was polite.",
+    "root": "was",
+    "subject": "student"
+  },
+  {
+    "text": "What matters most is your attitude.",
+    "root": "is",
+    "subject": "What"
+  }
+]
