@@ -1,0 +1,653 @@
+{
+  "schema_version": "0.1",
+  "status": "draft_human_review_required",
+  "purpose": "Gold candidate corpus for clause-boundary and school-grammar SVOC evaluation. Gold annotations are editorial drafts, NOT machine-verified truth.",
+  "notes": [
+    "Offsets are computed as character spans by the validation script; identical strings must be disambiguated before scoring.",
+    "main.subject is a diagnostic skeleton span (relative/postnominal modifiers excluded), not necessarily the complete syntactic subject.",
+    "Existential there and extraposition it require separate grading rules; do not treat these as ordinary SVOC.",
+    "For coordination examples, only the first coordinated predicate is annotated; full coordinated predicate coverage remains pending.",
+    "Noun clauses, infinitives, gerunds and participles may have multiple legitimate school-grammar analyses; require human review before automated accuracy claims.",
+    "These are deliberately constructed examples, not a representative statistical sample."
+  ],
+  "cases": [
+    {
+      "id": "G001",
+      "text": "She is happy.",
+      "category": "SVC",
+      "main": {
+        "S": "She",
+        "V": "is",
+        "O": [],
+        "C": "happy"
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G002",
+      "text": "The tall boy runs fast.",
+      "category": "SV",
+      "main": {
+        "S": "The tall boy",
+        "V": "runs",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G003",
+      "text": "I read a book.",
+      "category": "SVO",
+      "main": {
+        "S": "I",
+        "V": "read",
+        "O": [
+          "a book"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G004",
+      "text": "She gave me a book.",
+      "category": "SVOO",
+      "main": {
+        "S": "She",
+        "V": "gave",
+        "O": [
+          "me",
+          "a book"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G005",
+      "text": "I found the book useful.",
+      "category": "SVOC",
+      "main": {
+        "S": "I",
+        "V": "found",
+        "O": [
+          "the book"
+        ],
+        "C": "useful"
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G006",
+      "text": "The dog barked loudly.",
+      "category": "SV",
+      "main": {
+        "S": "The dog",
+        "V": "barked",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G007",
+      "text": "My father is a doctor.",
+      "category": "SVC",
+      "main": {
+        "S": "My father",
+        "V": "is",
+        "O": [],
+        "C": "a doctor"
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G008",
+      "text": "We watched the movie.",
+      "category": "SVO",
+      "main": {
+        "S": "We",
+        "V": "watched",
+        "O": [
+          "the movie"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G009",
+      "text": "They elected him president.",
+      "category": "SVOC",
+      "main": {
+        "S": "They",
+        "V": "elected",
+        "O": [
+          "him"
+        ],
+        "C": "president"
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G010",
+      "text": "The teacher showed us a picture.",
+      "category": "SVOO",
+      "main": {
+        "S": "The teacher",
+        "V": "showed",
+        "O": [
+          "us",
+          "a picture"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G011",
+      "text": "The man who smiled left.",
+      "category": "relative",
+      "main": {
+        "S": "The man",
+        "V": "left",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [
+        "who smiled"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G012",
+      "text": "The boy who lives here runs fast.",
+      "category": "relative",
+      "main": {
+        "S": "The boy",
+        "V": "runs",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [
+        "who lives here"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G013",
+      "text": "The book that I bought yesterday was expensive.",
+      "category": "relative",
+      "main": {
+        "S": "The book",
+        "V": "was",
+        "O": [],
+        "C": "expensive"
+      },
+      "embedded_spans": [
+        "that I bought yesterday"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G014",
+      "text": "The woman whom we met yesterday is a scientist.",
+      "category": "relative",
+      "main": {
+        "S": "The woman",
+        "V": "is",
+        "O": [],
+        "C": "a scientist"
+      },
+      "embedded_spans": [
+        "whom we met yesterday"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G015",
+      "text": "The house where I grew up has disappeared.",
+      "category": "relative",
+      "main": {
+        "S": "The house",
+        "V": "has disappeared",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [
+        "where I grew up"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G016",
+      "text": "When I arrived home, my mother was cooking dinner.",
+      "category": "adverbial",
+      "main": {
+        "S": "my mother",
+        "V": "was cooking",
+        "O": [
+          "dinner"
+        ],
+        "C": null
+      },
+      "embedded_spans": [
+        "When I arrived home"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G017",
+      "text": "Because it was raining, we stayed inside.",
+      "category": "adverbial",
+      "main": {
+        "S": "we",
+        "V": "stayed",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [
+        "Because it was raining"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G018",
+      "text": "If you study hard, you will improve.",
+      "category": "adverbial",
+      "main": {
+        "S": "you",
+        "V": "will improve",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [
+        "If you study hard"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G019",
+      "text": "Although he was tired, he continued working.",
+      "category": "adverbial",
+      "main": {
+        "S": "he",
+        "V": "continued",
+        "O": [
+          "working"
+        ],
+        "C": null
+      },
+      "embedded_spans": [
+        "Although he was tired"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G020",
+      "text": "I will call you after I finish my homework.",
+      "category": "adverbial",
+      "main": {
+        "S": "I",
+        "V": "will call",
+        "O": [
+          "you"
+        ],
+        "C": null
+      },
+      "embedded_spans": [
+        "after I finish my homework"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G021",
+      "text": "I think that she is right.",
+      "category": "noun_clause",
+      "main": {
+        "S": "I",
+        "V": "think",
+        "O": [
+          "that she is right"
+        ],
+        "C": null
+      },
+      "embedded_spans": [
+        "that she is right"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G022",
+      "text": "What he said surprised everyone.",
+      "category": "noun_clause",
+      "main": {
+        "S": "What he said",
+        "V": "surprised",
+        "O": [
+          "everyone"
+        ],
+        "C": null
+      },
+      "embedded_spans": [
+        "What he said"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G023",
+      "text": "I know where she lives.",
+      "category": "noun_clause",
+      "main": {
+        "S": "I",
+        "V": "know",
+        "O": [
+          "where she lives"
+        ],
+        "C": null
+      },
+      "embedded_spans": [
+        "where she lives"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G024",
+      "text": "That he passed the exam is surprising.",
+      "category": "noun_clause",
+      "main": {
+        "S": "That he passed the exam",
+        "V": "is",
+        "O": [],
+        "C": "surprising"
+      },
+      "embedded_spans": [
+        "That he passed the exam"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G025",
+      "text": "She asked whether I was ready.",
+      "category": "noun_clause",
+      "main": {
+        "S": "She",
+        "V": "asked",
+        "O": [
+          "whether I was ready"
+        ],
+        "C": null
+      },
+      "embedded_spans": [
+        "whether I was ready"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G026",
+      "text": "There are many books on the desk.",
+      "category": "existential",
+      "main": {
+        "S": "There",
+        "V": "are",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G027",
+      "text": "There was a problem with the plan.",
+      "category": "existential",
+      "main": {
+        "S": "There",
+        "V": "was",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G028",
+      "text": "It is important to learn English.",
+      "category": "extraposition",
+      "main": {
+        "S": "It",
+        "V": "is",
+        "O": [],
+        "C": "important"
+      },
+      "embedded_spans": [
+        "to learn English"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G029",
+      "text": "It seems that he is honest.",
+      "category": "extraposition",
+      "main": {
+        "S": "It",
+        "V": "seems",
+        "O": [],
+        "C": null
+      },
+      "embedded_spans": [
+        "that he is honest"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G030",
+      "text": "It was difficult for me to answer.",
+      "category": "extraposition",
+      "main": {
+        "S": "It",
+        "V": "was",
+        "O": [],
+        "C": "difficult"
+      },
+      "embedded_spans": [
+        "for me to answer"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G031",
+      "text": "She wants to become a doctor.",
+      "category": "infinitive",
+      "main": {
+        "S": "She",
+        "V": "wants",
+        "O": [
+          "to become a doctor"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G032",
+      "text": "To read books is enjoyable.",
+      "category": "infinitive",
+      "main": {
+        "S": "To read books",
+        "V": "is",
+        "O": [],
+        "C": "enjoyable"
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G033",
+      "text": "He decided to leave early.",
+      "category": "infinitive",
+      "main": {
+        "S": "He",
+        "V": "decided",
+        "O": [
+          "to leave early"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G034",
+      "text": "I enjoy playing tennis.",
+      "category": "gerund",
+      "main": {
+        "S": "I",
+        "V": "enjoy",
+        "O": [
+          "playing tennis"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G035",
+      "text": "Swimming in the sea is fun.",
+      "category": "gerund",
+      "main": {
+        "S": "Swimming in the sea",
+        "V": "is",
+        "O": [],
+        "C": "fun"
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G036",
+      "text": "The girl sitting by the window is my sister.",
+      "category": "participle",
+      "main": {
+        "S": "The girl",
+        "V": "is",
+        "O": [],
+        "C": "my sister"
+      },
+      "embedded_spans": [
+        "sitting by the window"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G037",
+      "text": "The letter written in English was difficult.",
+      "category": "participle",
+      "main": {
+        "S": "The letter",
+        "V": "was",
+        "O": [],
+        "C": "difficult"
+      },
+      "embedded_spans": [
+        "written in English"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G038",
+      "text": "She opened the door and entered the room.",
+      "category": "coordination",
+      "main": {
+        "S": "She",
+        "V": "opened",
+        "O": [
+          "the door"
+        ],
+        "C": null
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G039",
+      "text": "He is smart but sometimes careless.",
+      "category": "coordination",
+      "main": {
+        "S": "He",
+        "V": "is",
+        "O": [],
+        "C": "smart"
+      },
+      "embedded_spans": [],
+      "review_status": "pending",
+      "notes": ""
+    },
+    {
+      "id": "G040",
+      "text": "The book that my teacher recommended yesterday was surprisingly difficult to understand.",
+      "category": "mixed",
+      "main": {
+        "S": "The book",
+        "V": "was",
+        "O": [],
+        "C": "surprisingly difficult to understand"
+      },
+      "embedded_spans": [
+        "that my teacher recommended yesterday"
+      ],
+      "review_status": "pending",
+      "notes": ""
+    }
+  ]
+}
