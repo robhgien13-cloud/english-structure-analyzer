@@ -145,7 +145,7 @@ class AnalyzerRegressionTests(unittest.TestCase):
 
     def test_auxiliary_attached_subject(self):
         sentence = parse([
-            ('My', 'my', 'PRON', 'PRP
+            ('My', 'my', 'PRON', 'PRP', 'poss', 1),
             ('mother', 'mother', 'NOUN', 'NN', 'nsubj', 2),
             ('was', 'be', 'AUX', 'VBD', 'aux', 3),
             ('cooking', 'cook', 'VERB', 'VBG', 'ROOT', 3),
