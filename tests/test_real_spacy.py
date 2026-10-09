@@ -40,6 +40,51 @@ class RealSpacyIntegrationTests(unittest.TestCase):
                 for role, values in expected.items():
                     self.assertEqual([e["text"] for e in core[role]], values, (text, role))
 
+    def test_complex_sentence_structure(self):
+        """Check structural meaning, not just whether parsing completes."""
+        cases = [
+            {
+                "text": "The man who smiled left.",
+                "main_subject": "The man",
+                "main_verb": "left",
+                "required_clause_type": "relative",
+            },
+            {
+                "text": "If it rains, we will stay home.",
+                "main_subject": "we",
+                "main_verb": "will stay",
+                "required_clause_type": "adverbial",
+            },
+            {
+                "text": "I found the book useful.",
+                "main_subject": "I",
+                "main_verb": "found",
+                "main_object": "the book",
+                "main_complement": "useful",
+            },
+            {
+                "text": "They painted the door red.",
+                "main_subject": "They",
+                "main_verb": "painted",
+                "main_object": "the door",
+                "main_complement": "red",
+            },
+        ]
+        for case in cases:
+            with self.subTest(text=case["text"]):
+                sentence = self.analyze_one(case["text"])
+                main = next(c for c in sentence["clauses"] if c["type"] == "main")
+                core = main["core"]
+                self.assertIn(case["main_subject"], [e["text"] for e in core["S"]])
+                self.assertIn(case["main_verb"], [e["text"] for e in core["V"]])
+                if "main_object" in case:
+                    self.assertIn(case["main_object"], [e["text"] for e in core["O"]])
+                if "main_complement" in case:
+                    self.assertIn(case["main_complement"], [e["text"] for e in core["C"]])
+                if "required_clause_type" in case:
+                    self.assertIn(case["required_clause_type"],
+                                  [c["type"] for c in sentence["clauses"]])
+
     def test_diverse_sentence_smoke(self):
         sentences = [
             "I want to leave.",
