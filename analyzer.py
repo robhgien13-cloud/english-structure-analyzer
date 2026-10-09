@@ -181,6 +181,15 @@ class EnglishStructureAnalyzer:
         for w in direct:
             if w.deprel in SUBJECT_RELS:
                 core['S'].append(self._element(w, 'S', children, ids))
+        # Some spaCy parses attach the subject to an auxiliary (was)
+        # rather than to its lexical verb (cooking).
+        for aux in direct:
+            if aux.deprel in {'aux', 'aux:pass'}:
+                for subject in children.get(aux.id, []):
+                    if subject.deprel in SUBJECT_RELS and not any(
+                        e['head_token'] == subject.id for e in core['S']
+                    ):
+                        core['S'].append(self._element(subject, 'S', children, ids))
             elif w.deprel in OBJECT_RELS:
                 core['O'].append(self._element(w, 'O', children, ids))
             elif w.deprel in MOD_RELS and w.deprel not in CLAUSE_RELS:
