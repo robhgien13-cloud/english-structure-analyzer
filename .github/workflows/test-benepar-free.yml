@@ -1,0 +1,25 @@
+name: Test benepar free CPU feasibility
+on:
+  workflow_dispatch:
+jobs:
+  benepar-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install CPU parser dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install 'benepar==0.2.0' 'spacy>=3.7,<4' 'transformers<5'
+      - name: Test benepar on complex sentences
+        run: python scripts/test_benepar_free.py
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benepar-free-test
+          path: benepar-test-results/
