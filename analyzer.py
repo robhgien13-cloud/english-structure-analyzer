@@ -594,6 +594,7 @@ class EnglishStructureAnalyzer:
                 role = 'M'
                 ref['role'] = 'M'
                 ref['subtype'] = 'existential_predicate'
+                ref['excluded_from_school_core'] = True
             if ch.deprel == 'ccomp' and head.text.lower() == 'became':
                 if any(m.get('subtype') == 'correlative_comparative'
                        and m.get('head_token') == ch.id for m in core['M']):
