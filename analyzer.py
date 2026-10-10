@@ -146,6 +146,35 @@ class EnglishStructureAnalyzer:
                     # Keep the relative clause attached to its noun.
                     overrides[relative.i] = ('acl:relcl', root.i + 1)
 
+        # Repair a finite main predicate incorrectly tagged as an adjective
+        # when a sentence-initial free relative clause is chosen as ROOT.
+        # Require a wh-object, an embedded subject, a following predicate
+        # candidate, and its own object. Do not apply to ordinary relatives.
+        if (root is not None and root.dep_ == 'ROOT'
+                and tokens and tokens[0].text.lower() == 'what'
+                and tokens[0].head.i == root.i
+                and tokens[0].dep_ in {'dobj', 'obj'}
+                and any(ch.dep_ == 'nsubj' and ch.i < root.i
+                        for ch in root.children)):
+            main_predicates = {'surprised', 'shocked', 'amazed', 'pleased',
+                               'frightened', 'impressed', 'confused', 'worried'}
+            candidates = [
+                tok for tok in tokens
+                if tok.i > root.i and tok.text.lower() in main_predicates
+                and tok.dep_ in {'amod', 'acomp'}
+                and any(obj.i > tok.i and obj.dep_ in {'dobj', 'obj'}
+                        and obj.head.i == root.i and tok.head.i == obj.i
+                        for obj in tokens)
+            ]
+            if len(candidates) == 1:
+                predicate = candidates[0]
+                overrides[predicate.i] = ('root', 0)
+                overrides[root.i] = ('csubj', predicate.i + 1)
+                for obj in tokens:
+                    if (obj.i > predicate.i and obj.dep_ in {'dobj', 'obj'}
+                            and obj.head.i == root.i and predicate.head.i == obj.i):
+                        overrides[obj.i] = ('obj', predicate.i + 1)
+
         # spaCy occasionally labels an object-predicative adjective as
         # advmod (e.g. 'painted the door red'). Keep it distinct from adverbs.
         for tok in tokens:
@@ -243,7 +272,7 @@ class EnglishStructureAnalyzer:
         core = {'S': [], 'V': [], 'O': [], 'C': [], 'M': []}
         direct = children.get(head.id, [])
         for w in direct:
-            if w.deprel in SUBJECT_RELS:
+            if w.deprel in SUBJECT_RELS and not w.deprel.startswith('csubj'):
                 core['S'].append(self._element(w, 'S', children, ids))
             elif w.deprel in OBJECT_RELS:
                 core['O'].append(self._element(w, 'O', children, ids))
