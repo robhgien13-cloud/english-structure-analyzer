@@ -7,8 +7,8 @@
 ## まず確認した問題・留保（確定goldへの昇格は保留）
 | ID | 現行暫定値 | 論点と要対応 |
 |---|---|---|
-| G038 | V=opened; O=the door | **and entered the room** は等位接続された第2述部。V=entered と O=the room を捨てない。主節に複数の述部を許す表現形式が必要。 |
-| G039 | C=smart | **but sometimes careless** も等位接続された補語。C=careless を捨てない。sometimes は副詞で、Cの核ではない。 |
+| G038 | V=opened; O=the door | **確定規約：SVO + VO の述部等位接続**。She を共有し、(opened, the door) と (entered, the room) を and が接続。CONJ は SVOCM に含めない。 |
+| G039 | C=smart | **確定規約：SVC + C の補語等位接続**。smart と careless を but が接続。sometimes は careless を修飾する副詞。CONJ は SVOCM に含めない。 |
 | G040 | C=surprisingly difficult to understand | 「C全体」と「Cの核（difficult）」の境界を分ける。surprisingly は副詞、to understand は形容詞を補う不定詞。 |
 | T051 | She was given a beautiful necklace | 受動態の SVO/O の扱いは高校文法で説明が分かれる。能動態の間接目的語が受動態主語になり、残る a beautiful necklace を O とする分析を採用するか、受動態の残存目的語として別ラベルにするか要規約。 |
 | T048, T064 | It was John/the proposal that ... | 強調構文（cleft）の It を形式的 S、焦点名詞句を C とする分析は**教育上の便宜的分析**。強調構文と単純な SVC を同一視しない。焦点と元の文の文法役割を別記録。 |
@@ -30,3 +30,11 @@
 
 ## 次回監査
 残りの各文について S/V/O/C/M と節・修飾語の位置を逐語照合し、IDごとに判定・根拠・修正案を残す。合意が得られるまで既存goldを書き換えない。
+
+## 確定した接続詞の出力規約（ユーザー承認）
+- 接続詞は **CONJ** として独立表示し、S/V/O/C/M のいずれにも含めない。
+- 接続種別（等位・従属）、接続語の文字列・token範囲、接続する左右の対象（役割・token範囲・節ID等）を保存する。
+- 共通のSやVなど、省略・共有される要素を明示する。接続対象が曖昧なら推測で確定せず review にする。
+- G038: `She opened the door and entered the room.` → `S + (V1 O1 and V2 O2)`。and は述部同士を接続、S=She を共有。
+- G039: `He is smart but sometimes careless.` → `S V + (C1 but C2)`。but は補語同士を接続、sometimes は careless にかかる副詞。
+- 出力構造の例：`conjunctions: [{text, type, left:{role,token_ids}, right:{role,token_ids}, shared_roles, status}]`。この例は仕様案であり、現行コード実装済みとは限らない。
