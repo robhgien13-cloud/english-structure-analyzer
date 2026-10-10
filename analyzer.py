@@ -594,6 +594,11 @@ class EnglishStructureAnalyzer:
                 role = 'M'
                 ref['role'] = 'M'
                 ref['subtype'] = 'existential_predicate'
+            if ch.deprel == 'ccomp' and head.text.lower() == 'became':
+                if any(m.get('subtype') == 'correlative_comparative'
+                       and m.get('head_token') == ch.id for m in core['M']):
+                    child_clause_refs.append(clause_map[ch.id])
+                    continue
             if (ch.deprel == 'ccomp' and (head.lemma or '').lower() == 'be'
                     and not extraposed and core['S']
                     and not core['C']):
