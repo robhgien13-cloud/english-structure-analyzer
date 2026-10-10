@@ -486,7 +486,20 @@ class EnglishStructureAnalyzer:
             if ch.id == head.id or ch.head != head.id: continue
             role = ('M' if ch.deprel == 'advcl' else 'S' if ch.deprel.startswith('csubj') else 'O' if ch.deprel == 'xcomp' and (head.lemma or '').lower() in {'decide'} and any(t.text.lower() == 'to' and t.deprel in {'aux', 'mark'} for t in children.get(ch.id, [])) else 'C' if ch.deprel == 'xcomp' else 'O')
             ref = {'id':ids.make(role.lower()), 'role':role, 'text':self._span_text(ch, children), 'token_ids':sorted(self._subtree_ids(ch.id, children)), 'head_token':ch.id, 'clause_ref':clause_map[ch.id]}
-            core[role].append(ref)
+            formal_it = next((item for item in core['S'] if item['text'].lower() == 'it'), None)
+            extraposed = (formal_it is not None and ch.deprel == 'ccomp'
+                          and ((head.lemma or '').lower() == 'follow'
+                               or ((head.lemma or '').lower() in {'remain', 'be', 'seem'}
+                                   and bool(core['C'])))
+                          and any(t.text.lower() in {'that', 'whether'} and t.deprel == 'mark'
+                                  for t in children.get(ch.id, [])))
+            if extraposed:
+                relations.append({'id': ids.make('rel'), 'type': 'extraposed_subject',
+                                  'source_clause_head': ch.id,
+                                  'target_token': formal_it['head_token']})
+                tags.add('extraposed_subject')
+            else:
+                core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
 
         # A preposed degree adverb (How beautiful...) modifies C, not part of C.\n        for comp in core['C']:\n            for mod in children.get(comp['head_token'], []):\n                if mod.deprel == 'advmod' and mod.text.lower() == 'how':\n                    core['M'].append(self._element(mod, 'M', children, ids))\n\n        # Keep compatibility with UD-style copular input if encountered.
