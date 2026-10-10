@@ -1,0 +1,210 @@
+{
+  "schema_version": "0.1",
+  "status": "gpt_draft_unverified",
+  "description": "Ten unseen complex sentences T061-T070. GPT draft labels for main-clause school-grammar roles only. Not verified gold. Nested clauses and scope of modifiers require independent review; exact-match failure is diagnostic, not necessarily an engine error.",
+  "cases": [
+    {
+      "id": "T061",
+      "text": "Rarely have the researchers who developed the theory encountered such strong opposition.",
+      "category": "negative_inversion_relative",
+      "expected": {
+        "S": "the researchers",
+        "V_tokens": [
+          "have",
+          "encountered"
+        ],
+        "O": [
+          "such strong opposition"
+        ],
+        "C": [],
+        "M": [
+          "Rarely"
+        ]
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "Relative clause who developed the theory modifies researchers; exclude from main S."
+    },
+    {
+      "id": "T062",
+      "text": "It remains unclear whether the evidence that the committee examined was sufficient to justify its decision.",
+      "category": "extraposed_subject_nested_relative",
+      "expected": {
+        "S": "It",
+        "V_tokens": [
+          "remains"
+        ],
+        "O": [],
+        "C": [
+          "unclear"
+        ],
+        "M": []
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "Whether-clause is extraposed semantic subject; that the committee examined modifies evidence."
+    },
+    {
+      "id": "T063",
+      "text": "Had the manager known how serious the problem was, she would have had the engineers examine the system immediately.",
+      "category": "conditional_inversion_causative",
+      "expected": {
+        "S": "she",
+        "V_tokens": [
+          "would",
+          "have",
+          "had"
+        ],
+        "O": [
+          "the engineers"
+        ],
+        "C": [
+          "examine the system"
+        ],
+        "M": [
+          "Had the manager known how serious the problem was"
+        ]
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "Immediately modifies examine, not main verb; subclause role must be evaluated separately."
+    },
+    {
+      "id": "T064",
+      "text": "It was the proposal that the younger members had initially rejected that was eventually adopted by the board.",
+      "category": "nested_relative_it_cleft",
+      "expected": {
+        "S": "It",
+        "V_tokens": [
+          "was"
+        ],
+        "O": [],
+        "C": [
+          "the proposal"
+        ],
+        "M": []
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "First that-clause modifies proposal; second that-clause is cleft focus clause."
+    },
+    {
+      "id": "T065",
+      "text": "The discovery made it possible for scientists who had previously failed to detect the signal to identify its source.",
+      "category": "extraposed_object_relative",
+      "expected": {
+        "S": "The discovery",
+        "V_tokens": [
+          "made"
+        ],
+        "O": [
+          "it"
+        ],
+        "C": [
+          "possible"
+        ],
+        "M": []
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "It is formal object; for scientists ... to identify its source is semantic object/complement of possible."
+    },
+    {
+      "id": "T066",
+      "text": "Difficult as the task may seem, it is far less complicated than most people initially assume.",
+      "category": "concessive_inversion_comparison",
+      "expected": {
+        "S": "it",
+        "V_tokens": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "complicated"
+        ],
+        "M": [
+          "Difficult as the task may seem",
+          "far",
+          "less",
+          "than most people initially assume"
+        ]
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "Degree words and comparative phrase segmentation provisional; school-grammar C may include less complicated."
+    },
+    {
+      "id": "T067",
+      "text": "The negotiations having broken down, we watched the delegates who had supported the agreement leave the conference room in silence.",
+      "category": "absolute_participle_perception_relative",
+      "expected": {
+        "S": "we",
+        "V_tokens": [
+          "watched"
+        ],
+        "O": [
+          "the delegates"
+        ],
+        "C": [
+          "leave the conference room"
+        ],
+        "M": [
+          "The negotiations having broken down"
+        ]
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "in silence belongs inside embedded complement, not matrix M; exclude relative clause from O."
+    },
+    {
+      "id": "T068",
+      "text": "Whatever conclusions the investigators may reach, it does not necessarily follow that the original hypothesis was incorrect.",
+      "category": "free_relative_concession_extraposed_subject",
+      "expected": {
+        "S": "it",
+        "V_tokens": [
+          "does",
+          "not",
+          "follow"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "Whatever conclusions the investigators may reach",
+          "necessarily"
+        ]
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "That-clause is extraposed semantic subject; whatever-clause is concessive."
+    },
+    {
+      "id": "T069",
+      "text": "At the center of the controversy stood a scientist whose findings had been dismissed by experts who later acknowledged their significance.",
+      "category": "locative_inversion_nested_relative_passive",
+      "expected": {
+        "S": "a scientist",
+        "V_tokens": [
+          "stood"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "At the center of the controversy"
+        ]
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "Two nested relatives should be excluded from matrix S."
+    },
+    {
+      "id": "T070",
+      "text": "What made the researchers particularly concerned was the possibility that the results they had considered reliable might have been misleading.",
+      "category": "nominal_subject_appositive_relative_object_complement",
+      "expected": {
+        "S": "What made the researchers particularly concerned",
+        "V_tokens": [
+          "was"
+        ],
+        "O": [],
+        "C": [
+          "the possibility"
+        ],
+        "M": []
+      },
+      "review_status": "gpt_draft_unverified",
+      "notes": "Main S is free relative; appositive that-clause modifies possibility; embedded relative has object gap and C reliable."
+    }
+  ]
+}

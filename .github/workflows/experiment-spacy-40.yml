@@ -1,0 +1,36 @@
+name: Experiment spaCy correction on 40 cases
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - experiment/spacy-correction-40
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - run: python scripts/experiment_spacy_40.py
+      - run: python scripts/evaluate_grammar_candidates_20.py
+      - run: python scripts/evaluate_complex_candidates_10.py
+      - run: python scripts/evaluate_holdout_complex_10.py
+      - run: python scripts/diagnose_nominal_clauses.py
+      - run: python scripts/test_adverbial_regression.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spacy-correction-40
+          path: |
+            parser-40-results/spacy-app-normalized.json
+            parser-40-results/grammar-candidates-20.json
+            parser-40-results/complex-candidates-10.json
+            parser-40-results/holdout-complex-10.json

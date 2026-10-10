@@ -424,7 +424,7 @@
       "text": "There are many books on the desk.",
       "category": "existential",
       "main": {
-        "S": "There",
+        "S": "many books",
         "V": "are",
         "O": [],
         "C": null
@@ -438,7 +438,7 @@
       "text": "There was a problem with the plan.",
       "category": "existential",
       "main": {
-        "S": "There",
+        "S": "a problem",
         "V": "was",
         "O": [],
         "C": null

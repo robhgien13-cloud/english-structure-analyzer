@@ -1,0 +1,403 @@
+{
+  "schema_version": "0.1",
+  "status": "candidate_unverified",
+  "description": "Twenty additional grammar coverage probes. Expected roles are human-authored draft hypotheses, not validated parser truth. V_tokens lists separate words for noncontiguous auxiliaries. M includes subordinate clauses and adjuncts. Subclause roles and modifier relations need separate manual review.",
+  "cases": [
+    {
+      "id": "T041",
+      "text": "Did your brother finish his homework yesterday?",
+      "category": "yes_no_question",
+      "expected": {
+        "S": "your brother",
+        "V_tokens": [
+          "Did",
+          "finish"
+        ],
+        "O": [
+          "his homework"
+        ],
+        "C": [],
+        "M": [
+          "yesterday"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T042",
+      "text": "Which book did Mary buy at the store?",
+      "category": "wh_question",
+      "expected": {
+        "S": "Mary",
+        "V_tokens": [
+          "did",
+          "buy"
+        ],
+        "O": [
+          "Which book"
+        ],
+        "C": [],
+        "M": [
+          "at the store"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T043",
+      "text": "What a beautiful picture she painted!",
+      "category": "what_exclamation",
+      "expected": {
+        "S": "she",
+        "V_tokens": [
+          "painted"
+        ],
+        "O": [
+          "What a beautiful picture"
+        ],
+        "C": [],
+        "M": []
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T044",
+      "text": "How beautiful the flowers are!",
+      "category": "how_exclamation",
+      "expected": {
+        "S": "the flowers",
+        "V_tokens": [
+          "are"
+        ],
+        "O": [],
+        "C": [
+          "beautiful"
+        ],
+        "M": [
+          "How"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T045",
+      "text": "Never have I seen such a strange animal.",
+      "category": "negative_inversion",
+      "expected": {
+        "S": "I",
+        "V_tokens": [
+          "have",
+          "seen"
+        ],
+        "O": [
+          "such a strange animal"
+        ],
+        "C": [],
+        "M": [
+          "Never"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T046",
+      "text": "On the hill stood an old castle.",
+      "category": "locative_inversion",
+      "expected": {
+        "S": "an old castle",
+        "V_tokens": [
+          "stood"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "On the hill"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T047",
+      "text": "Had I known the truth, I would have helped her.",
+      "category": "conditional_inversion",
+      "expected": {
+        "S": "I",
+        "V_tokens": [
+          "would",
+          "have",
+          "helped"
+        ],
+        "O": [
+          "her"
+        ],
+        "C": [],
+        "M": [
+          "Had I known the truth"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T048",
+      "text": "It was John that broke the window.",
+      "category": "cleft_sentence",
+      "expected": {
+        "S": "It",
+        "V_tokens": [
+          "was"
+        ],
+        "O": [],
+        "C": [
+          "John"
+        ],
+        "M": []
+      },
+      "review_status": "candidate_unverified",
+      "notes": "Record John as semantic subject of broke; cleft analysis is provisional."
+    },
+    {
+      "id": "T049",
+      "text": "She runs faster than her brother does.",
+      "category": "comparative_clause",
+      "expected": {
+        "S": "She",
+        "V_tokens": [
+          "runs"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "faster",
+          "than her brother does"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T050",
+      "text": "Walking along the river, she found a small key.",
+      "category": "participial_clause",
+      "expected": {
+        "S": "she",
+        "V_tokens": [
+          "found"
+        ],
+        "O": [
+          "a small key"
+        ],
+        "C": [],
+        "M": [
+          "Walking along the river"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T051",
+      "text": "She was given a beautiful necklace by her grandmother.",
+      "category": "passive_ditransitive",
+      "expected": {
+        "S": "She",
+        "V_tokens": [
+          "was",
+          "given"
+        ],
+        "O": [
+          "a beautiful necklace"
+        ],
+        "C": [],
+        "M": [
+          "by her grandmother"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T052",
+      "text": "The teacher made the students clean the classroom.",
+      "category": "causative",
+      "expected": {
+        "S": "The teacher",
+        "V_tokens": [
+          "made"
+        ],
+        "O": [
+          "the students"
+        ],
+        "C": [
+          "clean the classroom"
+        ],
+        "M": []
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T053",
+      "text": "I saw a little boy running across the street.",
+      "category": "perception",
+      "expected": {
+        "S": "I",
+        "V_tokens": [
+          "saw"
+        ],
+        "O": [
+          "a little boy"
+        ],
+        "C": [
+          "running across the street"
+        ],
+        "M": []
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T054",
+      "text": "The house where my grandfather was born is still standing.",
+      "category": "relative_adverb",
+      "expected": {
+        "S": "The house",
+        "V_tokens": [
+          "is",
+          "standing"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "still"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T055",
+      "text": "Whoever finishes the task first will receive a prize.",
+      "category": "fused_relative_subject",
+      "expected": {
+        "S": "Whoever finishes the task first",
+        "V_tokens": [
+          "will",
+          "receive"
+        ],
+        "O": [
+          "a prize"
+        ],
+        "C": [],
+        "M": []
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T056",
+      "text": "We found it difficult to solve the problem.",
+      "category": "dummy_object",
+      "expected": {
+        "S": "We",
+        "V_tokens": [
+          "found"
+        ],
+        "O": [
+          "it"
+        ],
+        "C": [
+          "difficult"
+        ],
+        "M": []
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T057",
+      "text": "She has been studying English since she entered high school.",
+      "category": "present_perfect_progressive",
+      "expected": {
+        "S": "She",
+        "V_tokens": [
+          "has",
+          "been",
+          "studying"
+        ],
+        "O": [
+          "English"
+        ],
+        "C": [],
+        "M": [
+          "since she entered high school"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T058",
+      "text": "She sat on the bench with her eyes closed.",
+      "category": "with_absolute",
+      "expected": {
+        "S": "She",
+        "V_tokens": [
+          "sat"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "on the bench",
+          "with her eyes closed"
+        ]
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    },
+    {
+      "id": "T059",
+      "text": "The weather being fine, we decided to go hiking.",
+      "category": "absolute_participle",
+      "expected": {
+        "S": "we",
+        "V_tokens": [
+          "decided"
+        ],
+        "O": [
+          "to go hiking"
+        ],
+        "C": [],
+        "M": [
+          "The weather being fine"
+        ]
+      },
+      "review_status": "school_grammar_reviewed",
+      "notes": "School-grammar convention: decide to do takes a nominal to-infinitive as O, not C; absolute participial phrase is M."
+    },
+    {
+      "id": "T060",
+      "text": "The news that our team had won the championship surprised everyone.",
+      "category": "appositive_that_clause",
+      "expected": {
+        "S": "The news",
+        "V_tokens": [
+          "surprised"
+        ],
+        "O": [
+          "everyone"
+        ],
+        "C": [],
+        "M": []
+      },
+      "review_status": "candidate_unverified",
+      "notes": ""
+    }
+  ]
+}

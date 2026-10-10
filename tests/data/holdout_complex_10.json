@@ -1,0 +1,46 @@
+{
+  "status": "blind_holdout_no_gold",
+  "note": "Unseen probes, do not tune analyzer before first run; output only for manual review.",
+  "cases": [
+    {
+      "id": "H071",
+      "text": "No sooner had the committee announced its decision than several members raised objections."
+    },
+    {
+      "id": "H072",
+      "text": "Not until the final report was published did the researchers realize how much evidence had been overlooked."
+    },
+    {
+      "id": "H073",
+      "text": "Were the proposal to be rejected, the company would need to reconsider its strategy."
+    },
+    {
+      "id": "H074",
+      "text": "The children having finished their homework, their mother allowed them to play outside."
+    },
+    {
+      "id": "H075",
+      "text": "It seems likely that the witness who spoke yesterday misunderstood the question."
+    },
+    {
+      "id": "H076",
+      "text": "What surprised the audience most was how calmly the speaker responded to the criticism."
+    },
+    {
+      "id": "H077",
+      "text": "The professor watched the students carefully examine the samples under the microscope."
+    },
+    {
+      "id": "H078",
+      "text": "So difficult was the examination that few candidates managed to complete it on time."
+    },
+    {
+      "id": "H079",
+      "text": "The more carefully we examined the document, the less convincing its explanation became."
+    },
+    {
+      "id": "H080",
+      "text": "There appears to be a serious problem with the assumptions on which the model relies."
+    }
+  ]
+}
