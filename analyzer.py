@@ -611,7 +611,8 @@ class EnglishStructureAnalyzer:
                                   'target_token': formal_it['head_token']})
                 tags.add('extraposed_subject')
             else:
-                core[role].append(ref)
+                if not ref.get('excluded_from_school_core'):
+                    core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
 
         # A preposed degree adverb (How beautiful...) modifies C, not part of C.\n        for comp in core['C']:\n            for mod in children.get(comp['head_token'], []):\n                if mod.deprel == 'advmod' and mod.text.lower() == 'how':\n                    core['M'].append(self._element(mod, 'M', children, ids))\n\n        # Keep compatibility with UD-style copular input if encountered.
