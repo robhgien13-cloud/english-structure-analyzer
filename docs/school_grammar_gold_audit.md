@@ -57,3 +57,16 @@
 - ただし、すべての `It` を形式主語とみなさない。天候・時間・距離などの非人称it、通常の代名詞it、強調構文のitを区別する。真主語・真目的語が特定できない場合は review。
 - 該当例：G028, G029, G030, T056, T062, T065, T068。強調構文 G048（実際はT048）, T064 は別規約で監査する。
 - 既存のgold JSONはこの記録段階では変更しない。
+
+
+## 確定規約：準動詞と O/C（ユーザー承認）
+高校英文法の五文型をアプリ内の採点規約として採用する（文法書により異なる分析があり得る）。
+- `I want to leave.` → S=I, V=want, O=to leave（主節SVO）。
+- `He decided to leave early.` → S=He, V=decided, O=to leave early（主節SVO）。
+- `I enjoy playing tennis.` → S=I, V=enjoy, O=playing tennis（主節SVO）。
+- `She made him clean the room.` → S=She, V=made, O=him, C中心=clean, C全体=clean the room。the room はC内の不定詞相当の動詞句のOとして保存する。
+- `I saw him running.` → S=I, V=saw, O=him, C=running。
+- `She wants him to study.` → S=She, V=wants, O=him, C=to study。
+- **階層を分離**：主節のS/V/O/Cと、準動詞句内部のS（意味上の主語）・V・O・C・修飾語を混同しない。Cの中心語とC全体の範囲を別々に保持する。
+- **自動適用の条件**：不定詞を常にOにしない。動詞の語法・文型で判定し、名詞修飾・副詞的用法・補語用法等は区別する。曖昧な例はreviewとし採点対象から除外する。
+- 監査候補：G019, G031, G033, G034, T052, T053, T059, T063, T067。該当可否・既存goldとの差分は各例を読んで確定する。現段階ではgold JSON本体を変更しない。
