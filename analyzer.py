@@ -284,6 +284,25 @@ class EnglishStructureAnalyzer:
                     and not any(c.dep_ == 'nsubj' for c in tok.children)):
                 overrides[tok.i] = ('xcomp', tok.head.i + 1)
 
+        # Absolute participial adjuncts can be misread as a detached noun.
+        # Require a pre-comma nominal with its own perfect participle.
+        if root is not None:
+            comma = next((t for t in tokens if t.text == ',' and t.i < root.i), None)
+            if comma is not None:
+                absolutes = [t for t in tokens
+                             if t.dep_ == 'dep' and t.head.i == root.i
+                             and t.i < comma.i
+                             and any(c.dep_ == 'acl' and c.i < comma.i
+                                     and any(a.text.lower() == 'having'
+                                             and a.dep_ == 'aux' for a in c.children)
+                                     for c in t.children)]
+                if len(absolutes) == 1:
+                    nominal = absolutes[0]
+                    participle = next(c for c in nominal.children
+                                      if c.dep_ == 'acl' and c.i < comma.i)
+                    overrides[participle.i] = ('advcl', root.i + 1)
+                    overrides[nominal.i] = ('nsubj', participle.i + 1)
+
         # Normalize postverbal subjects in locative inversion.
         # Require an initial locative PP and a finite intransitive predicate.
         if root is not None and root.lemma_.lower() in {'stand', 'sit', 'lie', 'remain', 'appear', 'come', 'go'}:
