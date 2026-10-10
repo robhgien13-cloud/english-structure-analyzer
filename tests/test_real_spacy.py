@@ -109,6 +109,21 @@ class RealSpacyIntegrationTests(unittest.TestCase):
         hints = sentence["syntax_validation"]["verb_frame_hints"]
         self.assertTrue({"allow", "find"}.issubset({h["lemma"] for h in hints}))
 
+
+    def test_experiment_c_negative_controls(self):
+        """No positive cue should be emitted for superficially similar sentences."""
+        negatives = [
+            "The more careful student finished the assignment.",
+            "No sooner option was available to the committee.",
+            "The researchers did not wait until the report was published.",
+            "She gave him more time than he expected.",
+            "The less expensive option was selected.",
+        ]
+        for text in negatives:
+            with self.subTest(text=text):
+                sentence = self.analyze_one(text)
+                self.assertEqual(sentence["syntax_validation"]["cues"], [], text)
+
     def test_diverse_sentence_smoke(self):
         sentences = [
             "I want to leave.",
