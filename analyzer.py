@@ -170,6 +170,12 @@ class EnglishStructureAnalyzer:
                 predicate = candidates[0]
                 overrides[predicate.i] = ('root', 0)
                 overrides[root.i] = ('csubj', predicate.i + 1)
+                # Sentence-final punctuation belongs to the recovered main
+                # predicate, not to the embedded nominal subject.
+                for punct in tokens:
+                    if (punct.dep_ == 'punct' and punct.head.i == root.i
+                            and punct.i > predicate.i):
+                        overrides[punct.i] = ('punct', predicate.i + 1)
                 for obj in tokens:
                     if (obj.i > predicate.i and obj.dep_ in {'dobj', 'obj'}
                             and obj.head.i == root.i and predicate.head.i == obj.i):
