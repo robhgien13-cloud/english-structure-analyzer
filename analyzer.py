@@ -549,6 +549,11 @@ class EnglishStructureAnalyzer:
                                    and bool(core['C'])))
                           and any(t.text.lower() in {'that', 'whether'} and t.deprel == 'mark'
                                   for t in children.get(ch.id, [])))
+            if (ch.deprel == 'ccomp' and (head.lemma or '').lower() == 'be'
+                    and not extraposed and core['S']
+                    and not core['C']):
+                role = 'C'
+                ref['role'] = 'C'
             if extraposed:
                 relations.append({'id': ids.make('rel'), 'type': 'extraposed_subject',
                                   'source_clause_head': ch.id,
