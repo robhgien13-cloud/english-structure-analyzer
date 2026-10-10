@@ -48,3 +48,12 @@
 6. **正解範囲と情報保持**：修飾句を中心範囲から除外しても、修飾関係そのものは破棄しない。中心範囲と句全体を区別して保存する。
 
 適用例：G002（The tall boy）、G011–G015（関係詞節）、G036–G037（後置分詞）、T053（知覚動詞+O+C）、T061/T067（関係詞節を含むO/S）など。これらのgold本体は監査完了まで変更しない。
+
+
+## 確定規約：形式主語・形式目的語（ユーザー承認）
+- 形式主語構文は表面上の主節 S = `It` として採点し、後続の真主語（to不定詞句・that節・whether節など）を **別フィールド** に保持する。例：`It is important to learn English.` → S=It, V=is, C=important, real_subject=to learn English。
+- 形式目的語構文は主節 O = `it` として採点し、後続の真目的語（不定詞句・節など）を **別フィールド** に保持する。例：`We found it difficult to solve the problem.` → S=We, V=found, O=it, C=difficult, real_object=to solve the problem。
+- 形式語と真の内容の対応関係を `formal_real_links` のような構造に保持する。真主語・真目的語を追加の主節 S/O として二重計上しない。
+- ただし、すべての `It` を形式主語とみなさない。天候・時間・距離などの非人称it、通常の代名詞it、強調構文のitを区別する。真主語・真目的語が特定できない場合は review。
+- 該当例：G028, G029, G030, T056, T062, T065, T068。強調構文 G048（実際はT048）, T064 は別規約で監査する。
+- 既存のgold JSONはこの記録段階では変更しない。
