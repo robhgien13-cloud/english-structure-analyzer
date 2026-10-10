@@ -109,20 +109,42 @@ class EnglishStructureAnalyzer:
                         overrides[main.i] = ('root', 0)
                         overrides[root.i] = ('advcl', main.i + 1)
 
-        # In short relative-clause sentences spaCy may incorrectly choose the
-        # subject noun as ROOT and label the finite main verb 'advmod'.
-        # Only repair this narrow pattern when the noun has a relative clause.
-        if (root is not None and root.pos_ in {'NOUN', 'PROPN', 'PRON'}
-                and any(c.dep_ == 'relcl' for c in root.children)):
-            relative_verbs = [c for c in root.children if c.dep_ == 'relcl']
-            finite_verbs = [tok for tok in tokens
-                            if tok.dep_ == 'advmod' and tok.pos_ in {'VERB', 'AUX'}
-                            and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
-                            and (tok.head is root or tok.head in relative_verbs)]
-            if len(finite_verbs) == 1:
-                main_verb = finite_verbs[0]
-                overrides[main_verb.i] = ('root', 0)
-                overrides[root.i] = ('nsubj', main_verb.i + 1)
+        # Recover a main finite predicate that spaCy mistags as an adverb
+        # inside a relative clause (e.g. "The man who smiled left.").
+        # Limit this to a noun ROOT, a single subject-relative clause and a
+        # known irregular past-tense verb *after* that relative clause.
+        # This is a conservative fallback, not a general POS correction.
+        if (root is not None and root.pos_ in {'NOUN', 'PROPN'}
+                and root.dep_ == 'ROOT'):
+            relatives = [c for c in root.children if c.dep_ == 'relcl']
+            irregular_past = {
+                'left': 'leave', 'went': 'go', 'came': 'come',
+                'ran': 'run', 'sat': 'sit', 'stood': 'stand',
+                'fell': 'fall', 'spoke': 'speak', 'wrote': 'write',
+                'drove': 'drive', 'slept': 'sleep', 'ate': 'eat',
+            }
+            if len(relatives) == 1:
+                relative = relatives[0]
+                has_relative_subject = any(
+                    c.dep_ in {'nsubj', 'nsubjpass'}
+                    and c.text.lower() in {'who', 'which', 'that'}
+                    for c in relative.children
+                )
+                candidates = [
+                    tok for tok in tokens
+                    if tok.i > relative.i
+                    and tok.dep_ == 'advmod'
+                    and tok.head is relative
+                    and (tok.pos_ in {'VERB', 'AUX'}
+                         and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
+                         or tok.text.lower() in irregular_past)
+                ]
+                if has_relative_subject and len(candidates) == 1:
+                    main_verb = candidates[0]
+                    overrides[main_verb.i] = ('root', 0)
+                    overrides[root.i] = ('nsubj', main_verb.i + 1)
+                    # Keep the relative clause attached to its noun.
+                    overrides[relative.i] = ('acl:relcl', root.i + 1)
 
         # spaCy occasionally labels an object-predicative adjective as
         # advmod (e.g. 'painted the door red'). Keep it distinct from adverbs.
