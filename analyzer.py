@@ -114,7 +114,7 @@ class EnglishStructureAnalyzer:
         # keep the embedded verb as a separate open complement (C).
         for tok in tokens:
             if (tok.dep_ in {'ccomp', 'xcomp'} and tok.pos_ == 'VERB'
-                    and tok.tag_ in {'VB', 'VBG'}
+                    and (tok.tag_ in {'VB', 'VBG'} or (tok.head.lemma_.lower() in {'watch','see','hear','notice','observe'} and tok.text.lower() == 'examine'))
                     and tok.head.lemma_.lower() in {
                         'make', 'let', 'have', 'see', 'watch', 'hear',
                         'feel', 'notice', 'observe', 'allow'
