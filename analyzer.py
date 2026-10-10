@@ -475,6 +475,29 @@ class EnglishStructureAnalyzer:
                             'modifies_token': modifier.id,
                         })
 
+        # Comparative adjective complements: retain degree modifiers and
+        # the comparative subordinate clause separately from the C head.
+        for adj in direct:
+            if adj.deprel in {'acomp', 'attr'} and adj.upos == 'ADJ':
+                comparisons = [c for c in children.get(adj.id, [])
+                               if c.deprel == 'advcl'
+                               and any(m.deprel == 'mark' and m.text.lower() == 'than'
+                                       for m in children.get(c.id, []))]
+                if comparisons:
+                    for degree in children.get(adj.id, []):
+                        if degree.deprel == 'advmod':
+                            for nested in children.get(degree.id, []):
+                                if nested.deprel == 'advmod':
+                                    core['M'].append(self._element(nested, 'M', children, ids))
+                            core['M'].append(self._element(degree, 'M', children, ids))
+                    for comparison in comparisons:
+                        core['M'].append({
+                            'id': ids.make('m'), 'role': 'M',
+                            'text': self._span_text(comparison, children),
+                            'token_ids': sorted(self._subtree_ids(comparison.id, children)),
+                            'head_token': comparison.id,
+                            'modifies_token': adj.id})
+
         # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
