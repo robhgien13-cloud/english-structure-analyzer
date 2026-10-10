@@ -344,6 +344,15 @@ class EnglishStructureAnalyzer:
                                           'source_token': mod.id,
                                           'target_token': nominal.id})
 
+        # Adverbial degree modifiers of an adjective complement are M,
+        # even when the adjective itself is classified as C.
+        for adj in direct:
+            if adj.deprel in {'acomp', 'attr', 'oprd'} and adj.upos == 'ADJ':
+                for mod in children.get(adj.id, []):
+                    if mod.deprel == 'advmod' and mod.text.lower() == 'how':
+                        if not any(e['head_token'] == mod.id for e in core['M']):
+                            core['M'].append(self._element(mod, 'M', children, ids))
+
         # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
