@@ -55,3 +55,18 @@ for sentence in ("There are many books on the desk.",
                          for k, v in cl["core"].items() if v})
                        for cl in result["clauses"]])
     print("TAGS:", result["tags"])
+
+# Agreed school-grammar existential convention.
+for sentence, subject, modifier in (
+    ("There are many books on the desk.", "many books", "on the desk"),
+    ("There was a problem with the plan.", "a problem", "with the plan"),
+):
+    result = app.analyze(sentence)["sentences"][0]
+    main = next(c for c in result["clauses"] if c["type"] == "main")
+    core = {k: [e["text"] for e in v] for k, v in main["core"].items()}
+    assert core["S"] == [subject], (sentence, core)
+    assert core["V"] == [sentence.split()[1]], (sentence, core)
+    assert core["C"] == [], (sentence, core)
+    assert "There" in core["M"] and modifier in core["M"], (sentence, core)
+    assert "existential_there" in result["tags"], (sentence, result["tags"])
+    print("EXISTENTIAL ASSERTIONS PASSED:", sentence)
