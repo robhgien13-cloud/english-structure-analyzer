@@ -439,7 +439,7 @@ class EnglishStructureAnalyzer:
                     tags.add('existential_there')
 
         # Correlative comparative: The more ..., the less ...
-        if head.lemma.lower() == 'become':
+        if head.text.lower() == 'became' or head.lemma.lower() == 'become':
             opening = [w for w in direct if w.deprel == 'ccomp' and w.id < head.id
                        and any(x.text.lower() == 'the' for x in by_id.values()
                                if x.head in {w.id} or
