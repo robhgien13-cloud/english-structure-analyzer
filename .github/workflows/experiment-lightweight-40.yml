@@ -1,0 +1,25 @@
+name: Experiment lightweight parsing on 40 cases
+on:
+  workflow_dispatch:
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [full, parser-only]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - run: python scripts/experiment_lightweight_40.py --mode ${{ matrix.mode }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lightweight-40-${{ matrix.mode }}
+          path: parser-40-results/lightweight-*.json
