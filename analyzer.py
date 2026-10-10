@@ -73,13 +73,13 @@ class EnglishStructureAnalyzer:
 
         # Recover lexical root when inverted perfect auxiliary is parsed as ROOT.
         # Require an initial negative adverb and a participle with its own subject.
-        root_aux = next((t for t in tokens if t.dep_ == 'ROOT' and t.pos_ == 'AUX'), None)
+        root_aux = next((t for t in tokens if t.dep_ == 'ROOT' and t.text.lower() in {'have', 'has', 'had'}), None)
         if root_aux is not None and any(
                 t.dep_ == 'advmod' and t.i < root_aux.i
                 and t.text.lower() in {'rarely', 'seldom', 'never', 'hardly', 'scarcely'}
                 and t.head.i == root_aux.i for t in tokens):
             lexical = [t for t in root_aux.children if t.dep_ == 'ccomp'
-                       and t.tag_ == 'VBN'
+                       and t.text.lower() not in {'been'}
                        and any(c.dep_ in {'nsubj', 'nsubjpass'} for c in t.children)]
             if len(lexical) == 1:
                 verb = lexical[0]
@@ -93,8 +93,7 @@ class EnglishStructureAnalyzer:
         # The initial had + subject + participle precedes a comma and
         # a second finite clause with an independent subject.
         initial_root = next((t for t in tokens if t.dep_ == 'ROOT'), None)
-        if (initial_root is not None and initial_root.pos_ == 'VERB'
-                and initial_root.tag_ == 'VBN'
+        if (initial_root is not None and initial_root.text.lower() not in {'had', 'have', 'has'}
                 and any(c.dep_ == 'aux' and c.text.lower() == 'had'
                         and c.i < initial_root.i for c in initial_root.children)
                 and any(c.dep_ == 'nsubj' for c in initial_root.children)):
