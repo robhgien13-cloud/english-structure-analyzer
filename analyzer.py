@@ -117,7 +117,7 @@ class EnglishStructureAnalyzer:
                     and tok.tag_ in {'VB', 'VBG'}
                     and tok.head.lemma_.lower() in {
                         'make', 'let', 'have', 'see', 'watch', 'hear',
-                        'feel', 'notice', 'observe'
+                        'feel', 'notice', 'observe', 'allow'
                     }):
                 subjects = [c for c in tok.children if c.dep_ == 'nsubj'
                             and c.pos_ in {'NOUN', 'PROPN', 'PRON'}]
