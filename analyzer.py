@@ -594,7 +594,7 @@ class EnglishStructureAnalyzer:
         out=[]
         if self._linking_verb(head.lemma):
             for w in direct:
-                if ((w.deprel in {'xcomp','obl','attr','acomp'} and w.upos in {'ADJ','NOUN','PROPN'})
+                if ((w.deprel in {'xcomp','obl','attr','acomp','oprd'} and w.upos in {'ADJ','NOUN','PROPN'})
                         or ((head.lemma or '').lower() == 'be' and w.deprel in {'attr','acomp','oprd'})):
                     out.append(self._element(w,'C',children,ids))
         if self._object_complement_verb(head.lemma):
