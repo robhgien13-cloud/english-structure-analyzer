@@ -54,6 +54,14 @@ class EnglishStructureAnalyzer:
                     overrides[tok.i] = ('case', pobj.i + 1)
                     overrides[pobj.i] = ('obl', tok.head.i + 1)
 
+        # Passive agents: spaCy uses agent -> pobj, unlike ordinary prep -> pobj.
+        for tok in tokens:
+            if tok.dep_ == 'agent':
+                pobj = next((c for c in tok.children if c.dep_ == 'pobj'), None)
+                if pobj is not None:
+                    overrides[tok.i] = ('case', pobj.i + 1)
+                    overrides[pobj.i] = ('obl', tok.head.i + 1)
+
         # Attach subjects of finite auxiliaries to the lexical verb.
         for tok in tokens:
             if tok.dep_ in {'nsubj', 'nsubjpass'}:
@@ -197,6 +205,19 @@ class EnglishStructureAnalyzer:
                     if (obj.i > predicate.i and obj.dep_ in {'dobj', 'obj'}
                             and obj.head.i == root.i and predicate.head.i == obj.i):
                         overrides[obj.i] = ('obj', predicate.i + 1)
+
+        # Recognize a narrowly identified it-cleft: the following that-clause
+        # explains the focused complement, not a matrix object.
+        if (root is not None and root.lemma_.lower() == 'be'
+                and any(t.dep_ == 'nsubj' and t.text.lower() == 'it'
+                        and t.head.i == root.i for t in tokens)
+                and any(t.dep_ == 'attr' and t.head.i == root.i
+                        for t in tokens)):
+            for tok in tokens:
+                if (tok.dep_ == 'ccomp' and tok.head.i == root.i
+                        and any(c.dep_ == 'nsubj' and c.text.lower() == 'that'
+                                for c in tok.children)):
+                    overrides[tok.i] = ('acl:relcl', root.i + 1)
 
         # Normalize postverbal subjects in locative inversion.
         # Require an initial locative PP and a finite intransitive predicate.
