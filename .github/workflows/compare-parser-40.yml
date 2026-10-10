@@ -28,7 +28,7 @@ jobs:
           else
             pip install 'torch==2.5.1+cpu' --index-url https://download.pytorch.org/whl/cpu
             pip install 'spacy>=3.7,<4' 'benepar>=0.2.0,<0.3'
-            python -m benepar.download benepar_en3
+            python -c "import benepar; benepar.download('benepar_en3')"
           fi
       - name: Collect raw parses
         run: python scripts/collect_parser_40.py --engine ${{ matrix.engine }}
