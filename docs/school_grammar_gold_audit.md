@@ -88,3 +88,11 @@
 - 従属節全体の機能（名詞節・形容詞節・副詞節）を記録し、主節内の役割・修飾先を明示する。**名詞節が主節O/S/Cとなる場合は、節全体の主節役割と節内部のSVOCを別階層に記録する**（単に主節から一律除外しない）。
 - 既決の後置修飾規約と整合させ、関係詞節等が名詞を修飾する場合は名詞句の中心範囲から除外し、修飾関係を別保存する。
 - 節の境界・主従関係が一意でない場合はreview。既存gold JSON本体およびmainは変更しない。
+
+
+## 確定規約：存在構文 There is / are（ユーザー承認）
+- 存在構文の導入語 `there` は **Sに含めない**。存在を表すbe動詞（必要なら助動詞も）はV、後続の存在物を表す名詞句をSとして記録する。
+- 例：`There are three books on the desk.` → introductory_there=There, V=are, S=three books, M=on the desk（場所を表す修飾句）。
+- 例：`There is a book that I bought yesterday.` → S=a book, V=is、`that I bought yesterday` は book を修飾する後置関係詞節として別保存する。節内部のSVOCも別記録。
+- `there` が場所を指す副詞の場合は存在構文の導入語と混同しない。文型や名詞句境界が曖昧な場合はreview。
+- 監査対象候補：G026, G027。既存gold JSON本体とmainは変更しない。
