@@ -505,6 +505,16 @@ class EnglishStructureAnalyzer:
             if ch.id == head.id or ch.head != head.id: continue
             role = ('M' if ch.deprel == 'advcl' else 'S' if ch.deprel.startswith('csubj') else 'O' if ch.deprel == 'xcomp' and (head.lemma or '').lower() in {'decide'} and any(t.text.lower() == 'to' and t.deprel in {'aux', 'mark'} for t in children.get(ch.id, [])) else 'C' if ch.deprel == 'xcomp' else 'O')
             ref = {'id':ids.make(role.lower()), 'role':role, 'text':self._span_text(ch, children), 'token_ids':sorted(self._subtree_ids(ch.id, children)), 'head_token':ch.id, 'clause_ref':clause_map[ch.id]}
+            if role == 'C' and ch.deprel == 'xcomp':
+                adjuncts = [w for w in children.get(ch.id, [])
+                            if w.deprel in {'advmod', 'obl', 'npmod'}]
+                if adjuncts:
+                    exclude = set().union(*(self._subtree_ids(w.id, children) for w in adjuncts))
+                    keep = [i for i in ref['token_ids'] if i not in exclude]
+                    ref['full_text'] = ref['text']
+                    ref['text'] = ' '.join(by_id[i].text for i in keep)
+                    ref['token_ids'] = keep
+                    ref['attached_modifiers'] = [self._span_text(w, children) for w in adjuncts]
             formal_it = next((item for item in core['S'] if item['text'].lower() == 'it'), None)
             extraposed = (formal_it is not None and ch.deprel == 'ccomp'
                           and ((head.lemma or '').lower() == 'follow'
