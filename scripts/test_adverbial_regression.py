@@ -11,7 +11,7 @@ examples = [
     ("When I arrived home, my mother was cooking dinner.", "cooking", "arrived"),
     ("Because it was raining, we stayed inside.", "stayed", "raining"),
     ("If you study hard, you will improve.", "improve", "study"),
-    ("Although he was tired, he continued working.", "continued", "tired"),
+    ("Although he was tired, he continued working.", "continued", "was"),
     ("I will call you after I finish my homework.", "call", "finish"),
 ]
 for sentence, main_verb, subordinate_verb in examples:
