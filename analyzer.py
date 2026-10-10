@@ -87,7 +87,7 @@ class EnglishStructureAnalyzer:
         root = next((tok for tok in tokens if tok.dep_ == 'ROOT'), None)
         if root is not None and root.pos_ in {'VERB', 'AUX'}:
             marks = [c for c in root.children
-                     if c.dep_ == 'mark' and c.lower_ in adverbial_markers]
+                     if c.dep_ == 'mark' and c.text.lower() in adverbial_markers]
             if marks:
                 comma = next((tok for tok in tokens
                               if tok.text == ',' and tok.i > root.i), None)
