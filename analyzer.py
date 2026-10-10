@@ -71,6 +71,45 @@ class EnglishStructureAnalyzer:
                         and aux.head.pos_ in {'VERB', 'AUX'}):
                     overrides[tok.i] = (tok.dep_, aux.head.i + 1)
 
+        # Recover lexical root when inverted perfect auxiliary is parsed as ROOT.
+        # Require an initial negative adverb and a participle with its own subject.
+        root_aux = next((t for t in tokens if t.dep_ == 'ROOT' and t.pos_ == 'AUX'), None)
+        if root_aux is not None and any(
+                t.dep_ == 'advmod' and t.i < root_aux.i
+                and t.text.lower() in {'rarely', 'seldom', 'never', 'hardly', 'scarcely'}
+                and t.head.i == root_aux.i for t in tokens):
+            lexical = [t for t in root_aux.children if t.dep_ == 'ccomp'
+                       and t.tag_ == 'VBN'
+                       and any(c.dep_ in {'nsubj', 'nsubjpass'} for c in t.children)]
+            if len(lexical) == 1:
+                verb = lexical[0]
+                overrides[verb.i] = ('root', 0)
+                overrides[root_aux.i] = ('aux', verb.i + 1)
+                for c in root_aux.children:
+                    if c.dep_ == 'advmod':
+                        overrides[c.i] = ('advmod', verb.i + 1)
+
+        # Recover main predicate after an inverted past-perfect condition.
+        # The initial had + subject + participle precedes a comma and
+        # a second finite clause with an independent subject.
+        initial_root = next((t for t in tokens if t.dep_ == 'ROOT'), None)
+        if (initial_root is not None and initial_root.pos_ == 'VERB'
+                and initial_root.tag_ == 'VBN'
+                and any(c.dep_ == 'aux' and c.text.lower() == 'had'
+                        and c.i < initial_root.i for c in initial_root.children)
+                and any(c.dep_ == 'nsubj' for c in initial_root.children)):
+            candidates = [c for c in initial_root.children
+                          if c.dep_ in {'ccomp', 'advcl'}
+                          and any(x.dep_ == 'nsubj' for x in c.children)
+                          and any(x.dep_ == 'aux' and x.tag_ == 'MD'
+                                  for x in c.children)
+                          and any(t.text == ',' and initial_root.i < t.i < c.i
+                                  for t in tokens)]
+            if len(candidates) == 1:
+                main = candidates[0]
+                overrides[main.i] = ('root', 0)
+                overrides[initial_root.i] = ('advcl', main.i + 1)
+
         # In causative/perception SVOC, spaCy may attach the object as
         # subject of a clausal complement. Promote that noun to matrix O;
         # keep the embedded verb as a separate open complement (C).
