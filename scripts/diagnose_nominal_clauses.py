@@ -1,5 +1,8 @@
 """Diagnostic-only investigation of nominal-clause parsing. No production changes."""
 import spacy
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from analyzer import EnglishStructureAnalyzer
 examples = [
     "What he said surprised everyone.",
