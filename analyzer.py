@@ -74,21 +74,40 @@ class EnglishStructureAnalyzer:
                     if child.dep_ == 'nsubj':
                         overrides[child.i] = ('obj', tok.head.i + 1)
 
-        # Recover a finite main clause from a misidentified initial when-clause.
+        # Repair a narrowly identifiable initial adverbial clause mistakenly
+        # chosen as ROOT. The conjunction must mark that clause, and a
+        # separate finite predicate with its own subject must follow the comma.
+        # Do NOT classify every 'when/if/after' as adverbial: e.g.
+        # "I know when she lives here" contains a nominal complement.
+        adverbial_markers = {
+            'when', 'while', 'because', 'although', 'though', 'if',
+            'unless', 'before', 'after', 'since', 'until', 'once',
+            'whereas', 'even though', 'as soon as'
+        }
         root = next((tok for tok in tokens if tok.dep_ == 'ROOT'), None)
-        if root is not None and any(c.dep_ == 'mark' for c in root.children):
-            comma = next((tok for tok in tokens if tok.text == ',' and tok.i > root.i), None)
-            if comma is not None:
-                candidates = [tok for tok in root.children
-                              if tok.i > comma.i and tok.dep_ in {'advcl', 'ccomp', 'conj', 'parataxis'}
-                              and tok.pos_ in {'VERB', 'AUX'}
-                              and any(c.dep_ in {'nsubj', 'nsubjpass'} and c.i > comma.i for c in tok.children)
-                              and (tok.tag_ in {'VBD', 'VBP', 'VBZ', 'MD'}
-                                   or any(c.dep_ in {'aux', 'auxpass'} and c.tag_ in {'VBD', 'VBP', 'VBZ', 'MD'} for c in tok.children))]
-                if len(candidates) == 1:
-                    main = candidates[0]
-                    overrides[main.i] = ('root', 0)
-                    overrides[root.i] = ('advcl', main.i + 1)
+        if root is not None and root.pos_ in {'VERB', 'AUX'}:
+            marks = [c for c in root.children
+                     if c.dep_ == 'mark' and c.lower_ in adverbial_markers]
+            if marks:
+                comma = next((tok for tok in tokens
+                              if tok.text == ',' and tok.i > root.i), None)
+                if comma is not None and min(m.i for m in marks) < comma.i:
+                    candidates = [
+                        tok for tok in root.children
+                        if tok.i > comma.i
+                        and tok.dep_ in {'advcl', 'ccomp', 'conj', 'parataxis'}
+                        and tok.pos_ in {'VERB', 'AUX'}
+                        and any(ch.dep_ in {'nsubj', 'nsubjpass'}
+                                and ch.i > comma.i for ch in tok.children)
+                        and (tok.tag_ in {'VBD', 'VBP', 'VBZ', 'MD'}
+                             or any(ch.dep_ in {'aux', 'auxpass'}
+                                    and ch.tag_ in {'VBD', 'VBP', 'VBZ', 'MD'}
+                                    for ch in tok.children))
+                    ]
+                    if len(candidates) == 1:
+                        main = candidates[0]
+                        overrides[main.i] = ('root', 0)
+                        overrides[root.i] = ('advcl', main.i + 1)
 
         # In short relative-clause sentences spaCy may incorrectly choose the
         # subject noun as ROOT and label the finite main verb 'advmod'.
