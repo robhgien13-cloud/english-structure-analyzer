@@ -4,11 +4,14 @@ python scripts/experiment_spacy_40.py
 Does not alter production or claim accuracy.
 """
 import json
+import sys
 from pathlib import Path
 import spacy
-from analyzer import EnglishStructureAnalyzer
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from analyzer import EnglishStructureAnalyzer
+
 CASES = json.loads((ROOT / "tests/data/parser_gold_40.json").read_text())["cases"]
 nlp = spacy.load("en_core_web_sm", disable=["ner"])
 app = EnglishStructureAnalyzer()
@@ -16,6 +19,7 @@ rows = []
 for case in CASES:
     doc = nlp(case["text"])
     raw_roots = [t.text for t in doc if t.dep_ == "ROOT"]
+    raw_root_ids = [t.i + 1 for t in doc if t.dep_ == "ROOT"]
     result = app.analyze(case["text"])["sentences"][0]
     main = next((c for c in result["clauses"] if c["type"] == "main"), None)
     core = main["core"] if main else {}
@@ -24,7 +28,9 @@ for case in CASES:
     actual_s, actual_v = get("S"), get("V")
     rows.append({
         "id": case["id"], "text": case["text"],
-        "raw_root": raw_roots, "normalized_root": result["root_token"],
+        "raw_root": raw_roots, "raw_root_ids": raw_root_ids,
+        "normalized_root": result["root_token"],
+        "root_changed": result["root_token"] not in raw_root_ids,
         "gold_S": gold["S"], "pred_S": actual_s,
         "gold_V": gold["V"], "pred_V": actual_v,
         "S_exact": actual_s == [gold["S"]],
@@ -41,5 +47,8 @@ print(json.dumps({
     "cases": len(rows),
     "S_exact": sum(x["S_exact"] for x in rows),
     "V_exact": sum(x["V_exact"] for x in rows),
+    "root_changed_ids": [x["id"] for x in rows if x["root_changed"]],
+    "S_mismatch_ids": [x["id"] for x in rows if not x["S_exact"]],
+    "V_mismatch_ids": [x["id"] for x in rows if not x["V_exact"]],
     "note": "Exact diagnostic skeleton spans; not grammatical accuracy."
 }, ensure_ascii=False))
