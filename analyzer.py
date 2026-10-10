@@ -545,7 +545,7 @@ class EnglishStructureAnalyzer:
         def walk(node):
             allowed.add(node.id)
             for c in children.get(node.id, []):
-                if c.deprel in NP_EXPAND or c.deprel in {'fixed','compound:prt','case'}:
+                if (c.deprel in NP_EXPAND or c.deprel in {'fixed','compound:prt','case'} or (w.deprel == 'obl' and c.deprel == 'obl' and any(x.deprel == 'case' for x in children.get(c.id, [])))):
                     walk(c)
         walk(w)
         return allowed
