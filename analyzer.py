@@ -111,8 +111,8 @@ class EnglishStructureAnalyzer:
 
         # Recover a main finite predicate that spaCy mistags as an adverb
         # inside a relative clause (e.g. "The man who smiled left.").
-        # Limit this to a noun ROOT, a single subject-relative clause and a
-        # known irregular past-tense verb *after* that relative clause.
+        # Limit this to a determiner-bearing ROOT, a single subject-relative
+        # clause and a known irregular past-tense verb after that clause.
         # This is a conservative fallback, not a general POS correction.
         if (root is not None and root.dep_ == 'ROOT'
                 and any(ch.dep_ == 'det' for ch in root.children)):
@@ -134,7 +134,7 @@ class EnglishStructureAnalyzer:
                     tok for tok in tokens
                     if tok.i > relative.i
                     and tok.dep_ == 'advmod'
-                    and tok.head is relative
+                    and tok.head.i == relative.i
                     and (tok.text.lower() in irregular_past
                          or (tok.pos_ in {'VERB', 'AUX'}
                              and tok.tag_ in {'VBD', 'VBP', 'VBZ'}))
