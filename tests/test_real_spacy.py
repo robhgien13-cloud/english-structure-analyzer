@@ -124,6 +124,16 @@ class RealSpacyIntegrationTests(unittest.TestCase):
                 sentence = self.analyze_one(text)
                 self.assertEqual(sentence["syntax_validation"]["cues"], [], text)
 
+
+    def test_experiment_c_coverage_report(self):
+        """Publish transparent cue coverage, including unsupported syntax types."""
+        from scripts.report_experiment_c_coverage import main
+        report = main()
+        self.assertEqual(report["positives"], 10)
+        self.assertEqual(report["negatives"], 8)
+        self.assertEqual(len(report["details"]["positive"]), 10)
+        self.assertEqual(len(report["details"]["negative"]), 8)
+
     def test_diverse_sentence_smoke(self):
         sentences = [
             "I want to leave.",
