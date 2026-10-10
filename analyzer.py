@@ -63,6 +63,23 @@ class EnglishStructureAnalyzer:
                         and aux.head.pos_ in {'VERB', 'AUX'}):
                     overrides[tok.i] = (tok.dep_, aux.head.i + 1)
 
+        # In causative/perception SVOC, spaCy may attach the object as
+        # subject of a clausal complement. Promote that noun to matrix O;
+        # keep the embedded verb as a separate open complement (C).
+        for tok in tokens:
+            if (tok.dep_ in {'ccomp', 'xcomp'} and tok.pos_ == 'VERB'
+                    and tok.tag_ in {'VB', 'VBG'}
+                    and tok.head.lemma_.lower() in {
+                        'make', 'let', 'have', 'see', 'watch', 'hear',
+                        'feel', 'notice', 'observe'
+                    }):
+                subjects = [c for c in tok.children if c.dep_ == 'nsubj'
+                            and c.pos_ in {'NOUN', 'PROPN', 'PRON'}]
+                if len(subjects) == 1 and not any(
+                        c.dep_ in {'dobj', 'obj'} for c in tok.head.children):
+                    overrides[subjects[0].i] = ('obj', tok.head.i + 1)
+                    overrides[tok.i] = ('xcomp', tok.head.i + 1)
+
         # Treat non-finite adjectival/nominal complements as object complements.
         for tok in tokens:
             if (tok.dep_ in {'ccomp', 'xcomp', 'oprd'}
