@@ -370,14 +370,16 @@
         "V_tokens": [
           "decided"
         ],
-        "O": [],
+        "O": [
+          "to go hiking"
+        ],
         "C": [],
         "M": [
           "The weather being fine"
         ]
       },
-      "review_status": "candidate_unverified",
-      "notes": "Infinitive complement to decide requires editorial decision."
+      "review_status": "school_grammar_reviewed",
+      "notes": "School-grammar convention: decide to do takes a nominal to-infinitive as O, not C; absolute participial phrase is M."
     },
     {
       "id": "T060",
