@@ -1,6 +1,9 @@
 name: Experiment spaCy correction on 40 cases
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - experiment/spacy-correction-40
 jobs:
   evaluate:
     runs-on: ubuntu-latest
