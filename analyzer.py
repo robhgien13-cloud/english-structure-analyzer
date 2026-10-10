@@ -284,6 +284,39 @@ class EnglishStructureAnalyzer:
                 core['O'].append(self._element(w, 'O', children, ids))
             elif w.deprel in MOD_RELS and w.deprel not in CLAUSE_RELS:
                 core['M'].append(self._element(w, 'M', children, ids))
+        # School-grammar convention for existential there:
+        # there=M (existential marker), postverbal nominal=S, be=V.
+        # Postnominal prepositional modifiers are separate M elements.
+        existential = [w for w in direct if w.deprel == 'expl'
+                       and w.text.lower() == 'there']
+        if existential and head.lemma.lower() == 'be':
+            postverbal = [w for w in direct
+                          if w.deprel in {'attr', 'nsubj'}
+                          and w.id > head.id
+                          and w.upos in {'NOUN', 'PROPN', 'PRON'}]
+            if len(existential) == 1 and len(postverbal) == 1:
+                nominal = postverbal[0]
+                core['S'] = [e for e in core['S']
+                             if e['head_token'] != nominal.id]
+                core['S'].append(self._element(nominal, 'S', children, ids))
+                marker = self._element(existential[0], 'M', children, ids)
+                marker['subtype'] = 'existential_marker'
+                core['M'].append(marker)
+                for mod in children.get(nominal.id, []):
+                    if (mod.deprel == 'obl'
+                            and any(ch.deprel == 'case'
+                                    for ch in children.get(mod.id, []))):
+                        pp_ids = self._subtree_ids(mod.id, children)
+                        pp = {'id': ids.make('m'), 'role': 'M',
+                              'text': ' '.join(by_id[i].text for i in sorted(pp_ids)),
+                              'token_ids': sorted(pp_ids), 'head_token': mod.id,
+                              'modifies_token': nominal.id}
+                        core['M'].append(pp)
+                        relations.append({'id': ids.make('rel'),
+                                          'type': 'modifies',
+                                          'source_token': mod.id,
+                                          'target_token': nominal.id})
+
         # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
@@ -299,6 +332,9 @@ class EnglishStructureAnalyzer:
         core['V'].append({'id': ids.make('v'), 'role':'V', 'text':' '.join(w.text for w in verb_words), 'token_ids':[w.id for w in verb_words], 'head_token':head.id})
 
         complements = self._complements(head, direct, children, ids)
+        if existential and head.lemma.lower() == 'be' and len(postverbal) == 1:
+            complements = [comp for comp in complements
+                           if comp['head_token'] != postverbal[0].id]
         core['C'].extend(complements)
         for comp in complements:
             comp['complement_of'] = 'O' if core['O'] and self._object_complement_verb(head.lemma) else 'S'
