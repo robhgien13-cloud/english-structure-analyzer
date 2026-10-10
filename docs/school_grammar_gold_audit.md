@@ -96,3 +96,11 @@
 - 例：`There is a book that I bought yesterday.` → S=a book, V=is、`that I bought yesterday` は book を修飾する後置関係詞節として別保存する。節内部のSVOCも別記録。
 - `there` が場所を指す副詞の場合は存在構文の導入語と混同しない。文型や名詞句境界が曖昧な場合はreview。
 - 監査対象候補：G026, G027。既存gold JSON本体とmainは変更しない。
+
+
+## 確定規約：受動態と残存目的語（ユーザー承認）
+- 受動態の助動詞・be動詞と過去分詞をまとめてVとする。
+- **受動態でも、動詞の後ろに目的語が残る場合は主節Oとして記録する**。例：`He was given a book.` → S=He, V=was given, O=a book。
+- 目的語が残らない受動態ではOを補わない。例：`The book was written by her.` → S=The book, V=was written, O=なし、`by her` は動作主を示す前置詞句として別保存する。
+- 受動態の種類や動詞の語法を踏まえて判定し、過去分詞の形だけで受動態と断定しない。曖昧な場合はreview。
+- 監査候補：T051ほか。既存gold JSON本体とmainは変更しない。
