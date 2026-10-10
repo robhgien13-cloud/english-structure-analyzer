@@ -263,6 +263,28 @@ class EnglishStructureAnalyzer:
                     # This prevents the main clause from treating it as O.
                     overrides[tok.i] = ('acl:relcl', focused[0].i + 1)
 
+        # Passive it-clefts: the focus clause may have passive 'that' as subject.
+        if (root is not None and root.lemma_.lower() == 'be'
+                and any(t.dep_ == 'nsubj' and t.text.lower() == 'it'
+                        and t.head.i == root.i for t in tokens)):
+            focuses = [t for t in tokens if t.dep_ == 'attr' and t.head.i == root.i]
+            if len(focuses) == 1:
+                for tok in tokens:
+                    if (tok.dep_ == 'ccomp' and tok.head.i == root.i
+                            and any(c.text.lower() == 'that'
+                                    and c.dep_ in {'nsubjpass', 'nsubj'}
+                                    for c in tok.children)):
+                        overrides[tok.i] = ('acl:relcl', focuses[0].i + 1)
+
+        # Perception verbs sometimes receive a bare-infinitive ccomp despite
+        # an already identified matrix object (watch X leave).
+        for tok in tokens:
+            if (tok.dep_ == 'ccomp' and tok.tag_ == 'VB'
+                    and tok.head.lemma_.lower() in {'watch', 'see', 'hear', 'feel', 'notice'}
+                    and any(c.dep_ == 'dobj' for c in tok.head.children)
+                    and not any(c.dep_ == 'nsubj' for c in tok.children)):
+                overrides[tok.i] = ('xcomp', tok.head.i + 1)
+
         # Normalize postverbal subjects in locative inversion.
         # Require an initial locative PP and a finite intransitive predicate.
         if root is not None and root.lemma_.lower() in {'stand', 'sit', 'lie', 'remain', 'appear', 'come', 'go'}:
