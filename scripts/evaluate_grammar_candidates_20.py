@@ -17,6 +17,9 @@ for case in cases:
     actual = {k: [e["text"] for e in core.get(k, [])] for k in "SVOCM"}
     v_tokens = [sentence["tokens"][i-1]["text"] for i in sorted(
         {t for e in core.get("V", []) for t in e["token_ids"]})]
+    if case["id"] in {"T045", "T046", "T052", "T053"}:
+        print("RAW", case["id"], [(t.text, t.dep_, t.head.text) for t in app.nlp(case["text"])])
+        print("NORMALIZED", case["id"], [(t["text"], t["deprel"], t["head"]) for t in sentence["tokens"]])
     expected = case["expected"]
     match = {
         "S": actual["S"] == [expected["S"]],
