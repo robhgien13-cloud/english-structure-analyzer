@@ -354,11 +354,24 @@ class EnglishStructureAnalyzer:
     def analyze(self, text: str) -> dict:
         doc = self.nlp(text)
         sentences = [self._convert_sentence(s) for s in doc.sents]
+        parsed = [self._sentence(s, i+1) for i, s in enumerate(sentences)]
+        # Experiment C is observational: do not alter the existing SVOC output.
+        from syntax_validation import detect_syntax_cues, verb_frame_hints, validate_school_core
+        for parsed_sentence, span in zip(parsed, doc.sents):
+            cues = detect_syntax_cues(span)
+            hints = verb_frame_hints(span)
+            core = next((c.get('core', {}) for c in parsed_sentence.get('clauses', [])
+                         if c.get('type') == 'main'), {})
+            issues = validate_school_core(core, cues)
+            parsed_sentence['syntax_validation'] = {
+                'cues': cues, 'verb_frame_hints': hints, 'issues': issues,
+                'status': 'review' if issues else 'unverified',
+            }
         return {
             'schema_version': '1.0',
             'engine': 'spacy-en_core_web_sm',
             'text': text,
-            'sentences': [self._sentence(s, i+1) for i, s in enumerate(sentences)]
+            'sentences': parsed
         }
 
     def _sentence(self, sent, idx: int) -> dict:
