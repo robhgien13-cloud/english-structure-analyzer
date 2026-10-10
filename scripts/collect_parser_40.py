@@ -41,6 +41,7 @@ try:
         import spacy
         import benepar
         model=spacy.blank("en")
+        model.add_pipe("sentencizer")
         model.add_pipe("benepar",config={"model":"benepar_en3"})
     report["after_load"]=memory()
     for case in cases:
