@@ -114,8 +114,8 @@ class EnglishStructureAnalyzer:
         # Limit this to a noun ROOT, a single subject-relative clause and a
         # known irregular past-tense verb *after* that relative clause.
         # This is a conservative fallback, not a general POS correction.
-        if (root is not None and root.pos_ in {'NOUN', 'PROPN'}
-                and root.dep_ == 'ROOT'):
+        if (root is not None and root.dep_ == 'ROOT'
+                and any(ch.dep_ == 'det' for ch in root.children)):
             relatives = [c for c in root.children if c.dep_ == 'relcl']
             irregular_past = {
                 'left': 'leave', 'went': 'go', 'came': 'come',
@@ -135,9 +135,9 @@ class EnglishStructureAnalyzer:
                     if tok.i > relative.i
                     and tok.dep_ == 'advmod'
                     and tok.head is relative
-                    and (tok.pos_ in {'VERB', 'AUX'}
-                         and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
-                         or tok.text.lower() in irregular_past)
+                    and (tok.text.lower() in irregular_past
+                         or (tok.pos_ in {'VERB', 'AUX'}
+                             and tok.tag_ in {'VBD', 'VBP', 'VBZ'}))
                 ]
                 if has_relative_subject and len(candidates) == 1:
                     main_verb = candidates[0]
