@@ -571,6 +571,10 @@ class EnglishStructureAnalyzer:
                                    and bool(core['C'])))
                           and any(t.text.lower() in {'that', 'whether'} and t.deprel == 'mark'
                                   for t in children.get(ch.id, [])))
+            if ch.deprel == 'xcomp' and ch.lemma.lower() == 'be' and any(w.deprel == 'expl' and w.text.lower() == 'there' for w in direct):
+                role = 'M'
+                ref['role'] = 'M'
+                ref['subtype'] = 'existential_predicate'
             if (ch.deprel == 'ccomp' and (head.lemma or '').lower() == 'be'
                     and not extraposed and core['S']
                     and not core['C']):
