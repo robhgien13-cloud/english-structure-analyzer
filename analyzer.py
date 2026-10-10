@@ -416,6 +416,28 @@ class EnglishStructureAnalyzer:
                 core['O'].append(self._element(w, 'O', children, ids))
             elif (w.deprel in MOD_RELS and w.deprel not in CLAUSE_RELS) or (w.deprel == 'neg' and w.text.lower() not in {'not', "n't"}):
                 core['M'].append(self._element(w, 'M', children, ids))
+        # There appears/seems to be + NP: the nominal is the semantic S.
+        if head.lemma.lower() in {'appear', 'seem'}:
+            marker = next((w for w in direct if w.deprel == 'expl'
+                           and w.text.lower() == 'there'), None)
+            be = next((w for w in direct if w.deprel == 'xcomp'
+                       and w.lemma.lower() == 'be'), None)
+            if marker is not None and be is not None:
+                nominals = [w for w in children.get(be.id, [])
+                            if w.deprel in {'attr', 'nsubj'}
+                            and w.upos in {'NOUN', 'PROPN', 'PRON'}]
+                if len(nominals) == 1:
+                    nominal = nominals[0]
+                    core['S'].append(self._element(nominal, 'S', children, ids))
+                    m = self._element(marker, 'M', children, ids)
+                    m['subtype'] = 'existential_marker'
+                    core['M'].append(m)
+                    for mod in children.get(nominal.id, []):
+                        if mod.deprel == 'obl' and any(
+                                c.deprel == 'case' for c in children.get(mod.id, [])):
+                            core['M'].append(self._element(mod, 'M', children, ids))
+                    tags.add('existential_there')
+
         # School-grammar convention for existential there:
         # there=M (existential marker), postverbal nominal=S, be=V.
         # Postnominal prepositional modifiers are separate M elements.
