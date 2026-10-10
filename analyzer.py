@@ -515,6 +515,10 @@ class EnglishStructureAnalyzer:
                     ref['text'] = ' '.join(by_id[i].text for i in keep)
                     ref['token_ids'] = keep
                     ref['attached_modifiers'] = [self._span_text(w, children) for w in adjuncts]
+            if role == 'M' and ch.deprel == 'advcl':
+                keep = [i for i in ref['token_ids'] if by_id[i].deprel != 'punct']
+                ref['token_ids'] = keep
+                ref['text'] = ' '.join(by_id[i].text for i in keep)
             formal_it = next((item for item in core['S'] if item['text'].lower() == 'it'), None)
             extraposed = (formal_it is not None and ch.deprel == 'ccomp'
                           and ((head.lemma or '').lower() == 'follow'
