@@ -8,7 +8,7 @@ SUBJECT_RELS = {'nsubj','nsubj:pass','csubj','csubj:pass'}
 OBJECT_RELS = {'obj','iobj'}
 MOD_RELS = {'advmod','advcl','obl','obl:tmod','npmod','discourse'}
 NP_EXPAND = {'det','amod','compound','nummod','nmod','nmod:poss','case','fixed','flat','appos'}
-AUX_RELS = {'aux','aux:pass','cop','compound:prt'}
+AUX_RELS = {'aux','aux:pass','cop','compound:prt','neg'}
 REL_WORDS = {'who','whom','whose','which','that','where','when','why'}
 
 @dataclass
@@ -337,7 +337,7 @@ class EnglishStructureAnalyzer:
                     ):
                         core['S'].append(self._element(subject, 'S', children, ids))
 
-        verb_words = [head] + [w for w in direct if w.deprel in AUX_RELS]
+        verb_words = [head] + [w for w in direct if w.deprel in AUX_RELS and (w.deprel != 'neg' or w.text.lower() in {'not', "n't"})]
         verb_words = sorted({w.id:w for w in verb_words}.values(), key=lambda w:w.id)
         core['V'].append({'id': ids.make('v'), 'role':'V', 'text':' '.join(w.text for w in verb_words), 'token_ids':[w.id for w in verb_words], 'head_token':head.id})
 
