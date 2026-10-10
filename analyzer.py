@@ -438,6 +438,25 @@ class EnglishStructureAnalyzer:
                             core['M'].append(self._element(mod, 'M', children, ids))
                     tags.add('existential_there')
 
+        # Correlative comparative: The more ..., the less ...
+        if head.lemma.lower() == 'become':
+            opening = [w for w in direct if w.deprel == 'ccomp' and w.id < head.id
+                       and any(x.text.lower() == 'the' for x in by_id.values()
+                               if x.head in {w.id} or
+                               (x.head in {c.id for c in children.get(w.id, [])}
+                                and x.id < w.id))]
+            comparative = [w for w in direct if w.deprel == 'acomp'
+                           and any(c.text.lower() == 'less' for c in children.get(w.id, []))]
+            if len(opening) == 1 and len(comparative) == 1:
+                front = opening[0]
+                front_ids = sorted(i for i in self._subtree_ids(front.id, children)
+                                   if by_id[i].deprel != 'punct')
+                core['M'].append({'id': ids.make('m'), 'role': 'M',
+                                  'text': ' '.join(by_id[i].text for i in front_ids),
+                                  'token_ids': front_ids, 'head_token': front.id,
+                                  'subtype': 'correlative_comparative'})
+                core['C'].append(self._element(comparative[0], 'C', children, ids))
+
         # School-grammar convention for existential there:
         # there=M (existential marker), postverbal nominal=S, be=V.
         # Postnominal prepositional modifiers are separate M elements.
