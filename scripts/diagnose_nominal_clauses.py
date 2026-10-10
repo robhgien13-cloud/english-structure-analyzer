@@ -43,3 +43,15 @@ for text in ("That he passed the exam is surprising.",
     _, core = main_core(text)
     assert len(core["S"]) == 1, (text, core)
 print("NOMINAL ASSERTIONS PASSED")
+
+# Inspect existential-there separately: it is not an ordinary subject NP.
+for sentence in ("There are many books on the desk.",
+                 "There was a problem with the plan."):
+    print("\\nEXISTENTIAL CASE:", sentence)
+    print("RAW:", [(t.text, t.pos_, t.dep_, t.head.text) for t in nlp(sentence)])
+    result = app.analyze(sentence)["sentences"][0]
+    print("NORMALIZED:", [(t["text"], t["deprel"], t["head"]) for t in result["tokens"]])
+    print("CLAUSES:", [(cl["type"], {k: [e["text"] for e in v]
+                         for k, v in cl["core"].items() if v})
+                       for cl in result["clauses"]])
+    print("TAGS:", result["tags"])
