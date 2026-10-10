@@ -10,8 +10,10 @@ cases = json.loads((ROOT / "tests/data/holdout_complex_10.json").read_text(encod
 app = EnglishStructureAnalyzer()
 rows = []
 for case in cases:
+    print("RAW HOLDOUT", case["id"], [(t.text, t.dep_, t.head.text, t.pos_, t.tag_) for t in app.nlp(case["text"])])
     result = app.analyze(case["text"])
     sentence = result["sentences"][0]
+    print("NORMALIZED HOLDOUT", case["id"], [(t["text"], t["deprel"], t["head"]) for t in sentence["tokens"]])
     main = next((c for c in sentence["clauses"] if c["type"] == "main"), None)
     core = main["core"] if main else {k: [] for k in "SVOCM"}
     actual = {k: [e["text"] for e in core.get(k, [])] for k in "SVOCM"}
