@@ -27,7 +27,7 @@ jobs:
             pip install 'supar==1.1.4' 'transformers<5'
           else
             pip install 'torch==2.5.1+cpu' --index-url https://download.pytorch.org/whl/cpu
-            pip install 'spacy>=3.7,<4' 'benepar>=0.2.0,<0.3'
+            pip install 'spacy>=3.7,<4' 'benepar>=0.2.0,<0.3' 'transformers>=4.40,<5'
             python -c "import benepar; benepar.download('benepar_en3')"
           fi
       - name: Collect raw parses
