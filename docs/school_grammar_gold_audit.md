@@ -38,3 +38,13 @@
 - G038: `She opened the door and entered the room.` → `S + (V1 O1 and V2 O2)`。and は述部同士を接続、S=She を共有。
 - G039: `He is smart but sometimes careless.` → `S V + (C1 but C2)`。but は補語同士を接続、sometimes は careless にかかる副詞。
 - 出力構造の例：`conjunctions: [{text, type, left:{role,token_ids}, right:{role,token_ids}, shared_roles, status}]`。この例は仕様案であり、現行コード実装済みとは限らない。
+
+## 確定規約：前置・後置修飾と分詞（ユーザー承認、補足付き）
+1. **前置修飾**：名詞の前に置かれる形容詞・分詞などは名詞句の一部として、S/O/Cの中心範囲に含める（例：the **sleeping** baby）。
+2. **後置修飾**：名詞を後ろから限定・説明する関係詞節、分詞句、前置詞句、不定詞句などは、S/O/Cの中心範囲から除外し、修飾句・修飾節として独立保存する。修飾先を記録する。
+3. **補語としての分詞**：S/Oの状態や動作を叙述する分詞はCに分類する（例：I saw the baby **sleeping** → O=the baby, C=sleeping）。「後置にある」「修飾先が見当たらない」だけではCとしない。OとCの叙述関係などを確認する。
+4. **動詞句としての分詞**：進行形・受動態を作る分詞は助動詞と合わせVとして扱う（例：The baby **was sleeping** → V=was sleeping）。
+5. **判定保留**：後置修飾かCか複数分析が成立する場合は一意に決めず、曖昧性を保存し診断問題から除外する。
+6. **正解範囲と情報保持**：修飾句を中心範囲から除外しても、修飾関係そのものは破棄しない。中心範囲と句全体を区別して保存する。
+
+適用例：G002（The tall boy）、G011–G015（関係詞節）、G036–G037（後置分詞）、T053（知覚動詞+O+C）、T061/T067（関係詞節を含むO/S）など。これらのgold本体は監査完了まで変更しない。
