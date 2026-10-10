@@ -374,6 +374,23 @@ class EnglishStructureAnalyzer:
                         if not any(e['head_token'] == mod.id for e in core['M']):
                             core['M'].append(self._element(mod, 'M', children, ids))
 
+        # Comparative clauses often attach to the comparative adverb,
+        # rather than directly to the main verb.
+        for modifier in direct:
+            if modifier.deprel == 'advmod':
+                for subordinate in children.get(modifier.id, []):
+                    if (subordinate.deprel == 'advcl'
+                            and any(marker.deprel == 'mark'
+                                    and marker.text.lower() == 'than'
+                                    for marker in children.get(subordinate.id, []))):
+                        core['M'].append({
+                            'id': ids.make('m'), 'role': 'M',
+                            'text': self._span_text(subordinate, children),
+                            'token_ids': sorted(self._subtree_ids(subordinate.id, children)),
+                            'head_token': subordinate.id,
+                            'modifies_token': modifier.id,
+                        })
+
         # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
