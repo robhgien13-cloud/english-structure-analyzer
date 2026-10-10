@@ -8,7 +8,7 @@ SUBJECT_RELS = {'nsubj','nsubj:pass','csubj','csubj:pass'}
 OBJECT_RELS = {'obj','iobj'}
 MOD_RELS = {'advmod','advcl','obl','obl:tmod','npmod','discourse'}
 NP_EXPAND = {'det','amod','compound','nummod','nmod','nmod:poss','case','fixed','flat','appos'}
-AUX_RELS = {'aux','aux:pass','cop','neg','compound:prt'}
+AUX_RELS = {'aux','aux:pass','cop','compound:prt'}
 REL_WORDS = {'who','whom','whose','which','that','where','when','why'}
 
 @dataclass
@@ -317,7 +317,7 @@ class EnglishStructureAnalyzer:
                                           'source_token': mod.id,
                                           'target_token': nominal.id})
 
-        # Some spaCy parses attach the subject to an auxiliary (was)
+        # Keep preposed negative adverbs as modifiers, never as auxiliaries.\n        for negative in direct:\n            if negative.deprel == 'neg' and negative.text.lower() not in {'not', "n't"}:\n                core['M'].append(self._element(negative, 'M', children, ids))\n\n        # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
             if aux.deprel in {'aux', 'aux:pass'}:
@@ -350,7 +350,7 @@ class EnglishStructureAnalyzer:
             core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
 
-        # Keep compatibility with UD-style copular input if encountered.
+        # A preposed degree adverb (How beautiful...) modifies C, not part of C.\n        for comp in core['C']:\n            for mod in children.get(comp['head_token'], []):\n                if mod.deprel == 'advmod' and mod.text.lower() == 'how':\n                    core['M'].append(self._element(mod, 'M', children, ids))\n\n        # Keep compatibility with UD-style copular input if encountered.
         copulas = [w for w in direct if w.deprel == 'cop']
         if copulas:
             core['V'] = [{'id':ids.make('v'),'role':'V','text':' '.join(w.text for w in sorted(copulas, key=lambda x:x.id)), 'token_ids':[w.id for w in sorted(copulas,key=lambda x:x.id)], 'head_token':copulas[0].id}]
@@ -405,7 +405,7 @@ class EnglishStructureAnalyzer:
         def walk(node):
             allowed.add(node.id)
             for c in children.get(node.id, []):
-                if c.deprel in NP_EXPAND or c.deprel in {'advmod','fixed','compound:prt','case'}:
+                if c.deprel in NP_EXPAND or c.deprel in {'fixed','compound:prt','case'}:
                     walk(c)
         walk(w)
         return allowed
