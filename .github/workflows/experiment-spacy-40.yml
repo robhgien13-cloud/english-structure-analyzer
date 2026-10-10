@@ -20,6 +20,7 @@ jobs:
           pip install 'spacy>=3.8,<4'
           python -m spacy download en_core_web_sm
       - run: python scripts/experiment_spacy_40.py
+      - run: python scripts/diagnose_nominal_clauses.py
       - run: python scripts/test_adverbial_regression.py
       - uses: actions/upload-artifact@v4
         if: always()
