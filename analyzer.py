@@ -181,6 +181,16 @@ class EnglishStructureAnalyzer:
                             and obj.head.i == root.i and predicate.head.i == obj.i):
                         overrides[obj.i] = ('obj', predicate.i + 1)
 
+        # Normalize postverbal subjects in locative inversion.
+        # Require an initial locative PP and a finite intransitive predicate.
+        if root is not None and root.lemma_.lower() in {'stand', 'sit', 'lie', 'remain', 'appear', 'come', 'go'}:
+            locative = any(t.dep_ == 'prep' and t.i < root.i and t.head.i == root.i for t in tokens)
+            if locative and not any(t.dep_ in {'nsubj', 'nsubjpass'} and t.head.i == root.i for t in tokens):
+                nominal = [t for t in tokens if t.head.i == root.i and t.i > root.i
+                           and t.dep_ in {'dobj', 'attr'} and t.pos_ in {'NOUN', 'PROPN', 'PRON'}]
+                if len(nominal) == 1:
+                    overrides[nominal[0].i] = ('nsubj', root.i + 1)
+
         # spaCy occasionally labels an object-predicative adjective as
         # advmod (e.g. 'painted the door red'). Keep it distinct from adverbs.
         for tok in tokens:
