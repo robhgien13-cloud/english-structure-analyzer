@@ -7,7 +7,7 @@ CLAUSE_RELS = {'root','advcl','ccomp','xcomp','acl','acl:relcl','csubj','csubj:p
 SUBJECT_RELS = {'nsubj','nsubj:pass','csubj','csubj:pass'}
 OBJECT_RELS = {'obj','iobj'}
 MOD_RELS = {'advmod','advcl','obl','obl:tmod','npmod','discourse'}
-NP_EXPAND = {'det','amod','compound','nummod','nmod','nmod:poss','case','fixed','flat','appos'}
+NP_EXPAND = {'predet','det','amod','compound','nummod','nmod','nmod:poss','case','fixed','flat','appos'}
 AUX_RELS = {'aux','aux:pass','cop','compound:prt','neg'}
 REL_WORDS = {'who','whom','whose','which','that','where','when','why'}
 
@@ -309,7 +309,7 @@ class EnglishStructureAnalyzer:
                 core['S'].append(self._element(w, 'S', children, ids))
             elif w.deprel in OBJECT_RELS:
                 core['O'].append(self._element(w, 'O', children, ids))
-            elif w.deprel in MOD_RELS and w.deprel not in CLAUSE_RELS:
+            elif (w.deprel in MOD_RELS and w.deprel not in CLAUSE_RELS) or (w.deprel == 'neg' and w.text.lower() not in {'not', "n't"}):
                 core['M'].append(self._element(w, 'M', children, ids))
         # School-grammar convention for existential there:
         # there=M (existential marker), postverbal nominal=S, be=V.
@@ -344,7 +344,7 @@ class EnglishStructureAnalyzer:
                                           'source_token': mod.id,
                                           'target_token': nominal.id})
 
-        # Keep preposed negative adverbs as modifiers, never as auxiliaries.\n        for negative in direct:\n            if negative.deprel == 'neg' and negative.text.lower() not in {'not', "n't"}:\n                core['M'].append(self._element(negative, 'M', children, ids))\n\n        # Some spaCy parses attach the subject to an auxiliary (was)
+        # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
             if aux.deprel in {'aux', 'aux:pass'}:
