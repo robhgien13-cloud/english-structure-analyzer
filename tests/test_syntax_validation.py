@@ -32,6 +32,31 @@ class SyntaxValidationTests(unittest.TestCase):
         issues = validate_school_core(core, [])
         self.assertIn("duplicate_core_span", {x["kind"] for x in issues})
 
+    def test_not_until_inversion_surface_cue(self):
+        doc = self.nlp("Not until the report was published did the researchers understand the result.")
+        self.assertTrue(any(c["kind"] == "NOT_UNTIL_INVERSION"
+                            for c in detect_syntax_cues(doc)))
+
+    def test_negative_no_sooner_case(self):
+        doc = self.nlp("The team had no sooner arrived than the storm began.")
+        self.assertFalse(any(c["kind"] == "NO_SOONER_THAN"
+                             for c in detect_syntax_cues(doc)))
+
+    def test_no_conflict_on_distinct_spans(self):
+        core = {"S": [{"token_ids": [1]}], "V": [{"token_ids": [2]}],
+                "O": [{"token_ids": [3]}], "C": [], "M": []}
+        self.assertEqual(validate_school_core(core, []), [])
+
+    def test_verb_frames_with_real_spacy(self):
+        try:
+            nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            self.skipTest("spaCy English model not installed")
+        doc = nlp("She allowed him to leave and found the answer useful.")
+        hints = verb_frame_hints(doc)
+        lemmas = {h["lemma"] for h in hints}
+        self.assertTrue({"allow", "find"}.issubset(lemmas))
+
 
 if __name__ == "__main__":
     unittest.main()
