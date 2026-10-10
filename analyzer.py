@@ -213,11 +213,16 @@ class EnglishStructureAnalyzer:
                         and t.head.i == root.i for t in tokens)
                 and any(t.dep_ == 'attr' and t.head.i == root.i
                         for t in tokens)):
+            focused = [t for t in tokens if t.dep_ == 'attr'
+                       and t.head.i == root.i]
             for tok in tokens:
-                if (tok.dep_ == 'ccomp' and tok.head.i == root.i
+                if (len(focused) == 1 and tok.dep_ == 'ccomp'
+                        and tok.head.i == root.i
                         and any(c.dep_ == 'nsubj' and c.text.lower() == 'that'
                                 for c in tok.children)):
-                    overrides[tok.i] = ('acl:relcl', root.i + 1)
+                    # Attach the cleft clause to its focus, not to matrix be.
+                    # This prevents the main clause from treating it as O.
+                    overrides[tok.i] = ('acl:relcl', focused[0].i + 1)
 
         # Normalize postverbal subjects in locative inversion.
         # Require an initial locative PP and a finite intransitive predicate.
