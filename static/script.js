@@ -68,11 +68,11 @@ const roleWords=document.getElementById("roleWords");
 const rolePrompt=document.getElementById("rolePrompt");
 const selectedRanges=document.getElementById("selectedRanges");
 const summary=document.getElementById("diagnosisSummary");
-let diagnosticData=null, unknown=new Set(), roleIndex=0, anchor=null, pending=[], selected=new Set(), answers=[];
+let diagnosticData=null, unknown=new Set(), roleIndex=0, anchor=null, pending=[], selected=new Set(), answers=[], noRoleChosen=false;
 const roleNames=["主語 S","動詞 V","目的語 O","補語 C"];
 function makeWordButtons(container,tokens,callback){
  container.replaceChildren();
- tokens.filter(t=>t.upos!=="PUNCT").forEach(t=>{
+ tokens.filter(t=>t.upos!=="PUNCT" && t.text && t.text.trim()).forEach(t=>{
   const b=document.createElement("button");b.type="button";b.className="word-button";
   b.textContent=t.text;b.dataset.index=t.index;b.addEventListener("click",()=>callback(t.index));container.appendChild(b);
  });
@@ -80,6 +80,7 @@ function makeWordButtons(container,tokens,callback){
 function paint(container,ids){container.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",ids.has(Number(b.dataset.index))));}
 document.getElementById("startDiagnosis").addEventListener("click",async()=>{
  diagnosis.hidden=false;rolesPanel.hidden=true;summary.hidden=true;diagnosisStatus.textContent="診断の準備中...";
+ document.getElementById("diagnosisOriginal").textContent=chosenText.textContent;
  diagnosticData=null;unknown=new Set();answers=[];roleIndex=0;diagnosisWords.replaceChildren();unknownWords.textContent="";
  try{
   const res=await fetch("/api/diagnose/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:chosenText.textContent})});
@@ -98,29 +99,32 @@ document.getElementById("beginRoles").addEventListener("click",()=>{
 });
 function renderRole(){
  if(roleIndex>=4){finishRoles();return;}
- anchor=null;pending=[];selected=new Set();rolePrompt.textContent=roleNames[roleIndex]+"を選択してください";
+ anchor=null;pending=[];selected=new Set();noRoleChosen=false;rolePrompt.textContent=roleNames[roleIndex]+"を選択してください";
  makeWordButtons(roleWords,diagnosticData.tokens,id=>{
-  if(anchor===null){anchor=id;selected=new Set([id]);}
-  else{const low=Math.min(anchor,id),high=Math.max(anchor,id);pending.push(...diagnosticData.tokens.filter(t=>t.index>=low&&t.index<=high&&t.upos!=="PUNCT").map(t=>t.index));selected=new Set(pending);anchor=null;}
+  noRoleChosen=false;
+  if(anchor===null){anchor=id;selected=new Set([...pending,id]);}
+  else{const low=Math.min(anchor,id),high=Math.max(anchor,id);pending=[...new Set([...pending,...diagnosticData.tokens.filter(t=>t.index>=low&&t.index<=high&&t.upos!=="PUNCT"&&t.text&&t.text.trim()).map(t=>t.index)])];selected=new Set(pending);anchor=null;}
   paint(roleWords,selected);selectedRanges.textContent="選択："+diagnosticData.tokens.filter(t=>selected.has(t.index)).map(t=>t.text).join(" ");
  });
  selectedRanges.textContent="まだ選択されていません。";
 }
-document.getElementById("addRange").addEventListener("click",()=>{if(anchor!==null){pending.push(anchor);anchor=null;}selected=new Set(pending);paint(roleWords,selected);selectedRanges.textContent="選択："+diagnosticData.tokens.filter(t=>selected.has(t.index)).map(t=>t.text).join(" ");});
-document.getElementById("noRole").addEventListener("click",()=>{anchor=null;pending=[];selected=new Set();paint(roleWords,selected);selectedRanges.textContent="なしを選択";});
+document.getElementById("addRange").addEventListener("click",()=>{if(anchor!==null){pending=[...new Set([...pending,anchor])];anchor=null;}selected=new Set(pending);paint(roleWords,selected);selectedRanges.textContent="選択："+(diagnosticData.tokens.filter(t=>selected.has(t.index)).map(t=>t.text).join(" ")||"なし");});
+document.getElementById("noRole").addEventListener("click",()=>{anchor=null;pending=[];selected=new Set();noRoleChosen=true;paint(roleWords,selected);selectedRanges.textContent="なしを選択";});
 document.getElementById("submitRole").addEventListener("click",()=>{
  if(anchor!==null){pending.push(anchor);anchor=null;}
- if(!pending.length&&selectedRanges.textContent!=="なしを選択"){selectedRanges.textContent="範囲を選択するか「なし」を押してください。";return;}
+ if(!pending.length&&!noRoleChosen){selectedRanges.textContent="範囲を選択するか「なし」を押してください。";return;}
  const role="SVOC"[roleIndex];const expected=new Set(diagnosticData.roles[role].flatMap(e=>e.token_ids));
  const actual=new Set(pending);
  const correct=expected.size===actual.size&&[...expected].every(x=>actual.has(x));
- answers.push({role,correct,expected:diagnosticData.roles[role].map(x=>x.text).join(" / ")||"なし"});
+ answers.push({role,correct,actual:diagnosticData.tokens.filter(t=>actual.has(t.index)).map(t=>t.text).join(" ")||"なし",expected:diagnosticData.roles[role].map(x=>x.text).join(" / ")||"なし"});
  roleIndex++;renderRole();
 });
 function finishRoles(){
  rolesPanel.hidden=true;summary.hidden=false;summary.replaceChildren();
  const h=document.createElement("h3");h.textContent="仮診断結果";summary.appendChild(h);
  const p=document.createElement("p");p.textContent="一致："+answers.filter(a=>a.correct).length+" / 4（試験版・解析の曖昧性は未検証）";summary.appendChild(p);
- answers.forEach(a=>{const line=document.createElement("p");line.textContent=a.role+"："+(a.correct?"一致":"要確認")+" ／ 解析上の候補："+a.expected;summary.appendChild(line);});
+ const original=document.createElement("p");original.textContent="診断した原文："+chosenText.textContent;summary.appendChild(original);
+ const vocabulary=document.createElement("p");vocabulary.textContent="本人が登録した未知語："+(diagnosticData.tokens.filter(t=>unknown.has(t.index)).map(t=>t.text).join("、")||"なし");summary.appendChild(vocabulary);
+ answers.forEach(a=>{const line=document.createElement("p");line.textContent=a.role+"："+(a.correct?"一致":"要確認")+" ／ 本人の回答："+a.actual+" ／ 解析上の候補："+a.expected;summary.appendChild(line);});
  const note=document.createElement("p");note.textContent="この結果だけで弱点は確定しません。追加問題による確認が必要です。";summary.appendChild(note);
 }
