@@ -1,0 +1,31 @@
+name: Experiment C six-case diagnostic trace
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/syntax-validation-c
+    paths:
+      - '.github/workflows/experiment-c-six-case-trace.yml'
+      - 'scripts/trace_experiment_c_six_cases.py'
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install spaCy and English model
+        run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - name: Trace six cases
+        run: python scripts/trace_experiment_c_six_cases.py
+      - name: Upload trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-c-six-case-trace
+          path: parser-40-results/experiment-c-six-case-trace.json
+          if-no-files-found: warn

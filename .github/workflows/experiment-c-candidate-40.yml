@@ -1,0 +1,37 @@
+name: Experiment C candidate comparison (40)
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/syntax-validation-c
+    paths:
+      - 'scripts/compare_gold_candidate_40.py'
+      - 'scripts/compare_gold_candidate_40_from_baseline.py'
+      - '.github/workflows/experiment-c-candidate-40.yml'
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parser and English model
+        run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - name: Generate real app parser output
+        run: python scripts/experiment_spacy_40.py
+      - name: Compare with unapproved candidate
+        run: python scripts/compare_gold_candidate_40_from_baseline.py
+      - name: Upload results even if a step fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-c-candidate-40
+          path: |
+            parser-40-results/spacy-app-normalized.json
+            parser-40-results/candidate-predictions.json
+            parser-40-results/candidate_comparison.json
+          if-no-files-found: warn

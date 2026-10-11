@@ -1,0 +1,42 @@
+name: Experiment C extended complement comparison
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/syntax-validation-c
+    paths:
+      - '.github/workflows/experiment-c-extended.yml'
+      - 'scripts/compare_experiment_c_extended.py'
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install real parser model
+        run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - name: Existing syntax regression
+        run: python -m unittest discover -s tests -p test_syntax_validation.py
+      - name: Generate real parser output
+        run: python scripts/experiment_spacy_40.py
+      - name: Compare provisional main roles
+        run: python scripts/compare_gold_candidate_40_from_baseline.py
+      - name: Trace real complement spans
+        run: python scripts/trace_experiment_c_six_cases.py
+      - name: Compare core and full complements separately
+        run: python scripts/compare_experiment_c_extended.py
+      - name: Upload comparison evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-c-extended
+          path: |
+            parser-40-results/candidate_comparison.json
+            parser-40-results/candidate_extended_comparison.json
+            parser-40-results/experiment-c-six-case-trace.json
+          if-no-files-found: warn

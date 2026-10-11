@@ -1,0 +1,31 @@
+name: Experiment C coordination trace
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/syntax-validation-c
+    paths:
+      - '.github/workflows/experiment-c-coordination-trace.yml'
+      - 'scripts/trace_experiment_c_coordination.py'
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install actual parser
+        run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - name: Trace coordination
+        run: python scripts/trace_experiment_c_coordination.py
+      - name: Upload trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-c-coordination-trace
+          path: parser-40-results/experiment-c-coordination-trace.json
+          if-no-files-found: warn

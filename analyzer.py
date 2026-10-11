@@ -354,11 +354,24 @@ class EnglishStructureAnalyzer:
     def analyze(self, text: str) -> dict:
         doc = self.nlp(text)
         sentences = [self._convert_sentence(s) for s in doc.sents]
+        parsed = [self._sentence(s, i+1) for i, s in enumerate(sentences)]
+        # Experiment C is observational: do not alter the existing SVOC output.
+        from syntax_validation import detect_syntax_cues, verb_frame_hints, validate_school_core
+        for parsed_sentence, span in zip(parsed, doc.sents):
+            cues = detect_syntax_cues(span)
+            hints = verb_frame_hints(span)
+            core = next((c.get('core', {}) for c in parsed_sentence.get('clauses', [])
+                         if c.get('type') == 'main'), {})
+            issues = validate_school_core(core, cues)
+            parsed_sentence['syntax_validation'] = {
+                'cues': cues, 'verb_frame_hints': hints, 'issues': issues,
+                'status': 'review' if issues else 'unverified',
+            }
         return {
             'schema_version': '1.0',
             'engine': 'spacy-en_core_web_sm',
             'text': text,
-            'sentences': [self._sentence(s, i+1) for i, s in enumerate(sentences)]
+            'sentences': parsed
         }
 
     def _sentence(self, sent, idx: int) -> dict:
@@ -383,6 +396,43 @@ class EnglishStructureAnalyzer:
         clauses = []
         for head in clause_heads:
             clauses.append(self._clause(head, root, by_id, children, clause_heads, clause_map, ids, relations, tags, warnings))
+        # Preserve coordinated predicate/complement members as an additive
+        # diagnostic field. Do not change the established main SVOC fields.
+        coordination_groups = []
+        for word in words:
+            if word.deprel != 'conj' or word.head not in by_id:
+                continue
+            parent = by_id[word.head]
+            conjunction = next((c.text.lower() for c in children.get(parent.id, []) + children.get(word.id, [])
+                                if c.deprel == 'cc'), None)
+            if word.upos == 'VERB' and parent.upos == 'VERB':
+                subject = next((c for c in children.get(parent.id, []) if c.deprel in SUBJECT_RELS), None)
+                if subject is None:
+                    continue
+                def objects(verb):
+                    return [self._phrase_text(c, children) for c in children.get(verb.id, [])
+                            if c.deprel in OBJECT_RELS]
+                coordination_groups.append({
+                    'kind': 'predicate', 'conjunction': conjunction,
+                    'shared': {'S': self._phrase_text(subject, children)},
+                    'members': [
+                        {'V': parent.text, 'O': objects(parent)},
+                        {'V': word.text, 'O': objects(word)}],
+                    'head_tokens': [parent.id, word.id]})
+            elif word.upos == 'ADJ' and parent.upos == 'ADJ' and parent.deprel in {'acomp', 'attr'}:
+                matrix = by_id.get(parent.head)
+                if matrix is None:
+                    continue
+                subject = next((c for c in children.get(matrix.id, []) if c.deprel in SUBJECT_RELS), None)
+                if subject is None:
+                    continue
+                modifiers = [self._phrase_text(c, children) for c in children.get(word.id, [])
+                             if c.deprel == 'advmod']
+                coordination_groups.append({
+                    'kind': 'complement', 'conjunction': conjunction,
+                    'shared': {'S': self._phrase_text(subject, children), 'V': matrix.text},
+                    'members': [{'C': parent.text}, {'C': word.text, 'M': modifiers}],
+                    'head_tokens': [parent.id, word.id]})
         self._global_relations(words, children, ids, relations, tags)
         tokens = [{
             'id': ids.make('tok'), 'index': w.id, 'text': w.text, 'lemma': w.lemma,
@@ -391,7 +441,8 @@ class EnglishStructureAnalyzer:
         return {
             'id': f'SENT-{idx:03d}', 'text': sent.text, 'tokens': tokens,
             'root_token': root.id, 'clauses': clauses, 'relations': relations,
-            'tags': sorted(tags), 'warnings': sorted(set(warnings))
+            'tags': sorted(tags), 'warnings': sorted(set(warnings)),
+            'coordination_groups': coordination_groups
         }
 
     def _clause(self, head, sentence_root, by_id, children, clause_heads, clause_map, ids, relations, tags, warnings):
@@ -557,6 +608,22 @@ class EnglishStructureAnalyzer:
         if existential and head.lemma.lower() == 'be' and len(postverbal) == 1:
             complements = [comp for comp in complements
                            if comp['head_token'] != postverbal[0].id]
+        # Preserve adjective head and its full predicative span independently.
+        # The school-grammar core remains the minimal head for existing clients.
+        for comp in complements:
+            c_head = by_id.get(comp['head_token'])
+            if c_head is not None and c_head.upos == 'ADJ':
+                degree = [w for w in children.get(c_head.id, [])
+                          if w.deprel == 'advmod']
+                infinitives = [w for w in children.get(c_head.id, [])
+                               if w.deprel == 'xcomp'
+                               and any(t.text.lower() == 'to' for t in children.get(w.id, []))]
+                if degree or infinitives:
+                    full_ids = set(comp['token_ids'])
+                    for modifier in degree + infinitives:
+                        full_ids.update(self._subtree_ids(modifier.id, children))
+                    comp['full_text'] = ' '.join(by_id[i].text for i in sorted(full_ids))
+                    comp['full_token_ids'] = sorted(full_ids)
         core['C'].extend(complements)
         for comp in complements:
             comp['complement_of'] = 'O' if core['O'] and self._object_complement_verb(head.lemma) else 'S'
@@ -567,7 +634,19 @@ class EnglishStructureAnalyzer:
         child_clause_refs = []
         for ch in clause_heads:
             if ch.id == head.id or ch.head != head.id: continue
-            role = ('M' if ch.deprel == 'advcl' else 'S' if ch.deprel.startswith('csubj') else 'O' if ch.deprel == 'xcomp' and (head.lemma or '').lower() in {'decide'} and any(t.text.lower() == 'to' and t.deprel in {'aux', 'mark'} for t in children.get(ch.id, [])) else 'C' if ch.deprel == 'xcomp' else 'O')
+            # School-grammar object clauses: only when there is no explicit matrix object.
+            # Keep causative/perception and object-controlled infinitives as C.
+            lemma = (head.lemma or '').lower()
+            has_to = any(t.text.lower() == 'to' and t.deprel in {'aux', 'mark'}
+                         for t in children.get(ch.id, []))
+            has_matrix_object = bool(core['O'])
+            object_xcomp = (ch.deprel == 'xcomp' and not has_matrix_object and
+                            ((lemma in {'decide', 'want'} and has_to) or
+                             (lemma in {'enjoy', 'continue'} and ch.xpos == 'VBG')))
+            role = ('M' if ch.deprel == 'advcl' else
+                    'S' if ch.deprel.startswith('csubj') else
+                    'O' if object_xcomp else
+                    'C' if ch.deprel == 'xcomp' else 'O')
             ref = {'id':ids.make(role.lower()), 'role':role, 'text':self._span_text(ch, children), 'token_ids':sorted(self._subtree_ids(ch.id, children)), 'head_token':ch.id, 'clause_ref':clause_map[ch.id]}
             if role == 'C' and ch.deprel == 'xcomp' and ch.xpos == 'VB':
                 adjuncts = [w for w in children.get(ch.id, [])
@@ -605,6 +684,15 @@ class EnglishStructureAnalyzer:
                     and not core['C']):
                 role = 'C'
                 ref['role'] = 'C'
+            # Formal-subject constructions: distinguish real subject from C/O.
+            extraposed_infinitive = (formal_it is not None and ch.deprel == 'xcomp'
+                                    and lemma == 'be' and bool(core['C']) and has_to)
+            extraposed_seem = (formal_it is not None and ch.deprel == 'ccomp'
+                               and lemma == 'seem'
+                               and any(t.text.lower() == 'that' and t.deprel == 'mark'
+                                       for t in children.get(ch.id, [])))
+            if extraposed_infinitive or extraposed_seem:
+                extraposed = True
             if extraposed:
                 relations.append({'id': ids.make('rel'), 'type': 'extraposed_subject',
                                   'source_clause_head': ch.id,

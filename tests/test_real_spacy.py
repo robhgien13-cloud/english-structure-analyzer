@@ -86,6 +86,54 @@ class RealSpacyIntegrationTests(unittest.TestCase):
                     self.assertIn(case["required_clause_type"],
                                   [c["type"] for c in sentence["clauses"]])
 
+
+    def test_experiment_c_syntax_diagnostics(self):
+        """Exercise C on the CI path that runs real-spaCy integration tests."""
+        cases = [
+            ("The more carefully we examined the document, the less convincing its explanation became.",
+             "CORRELATIVE_COMPARATIVE"),
+            ("No sooner had the committee announced its decision than several members raised objections.",
+             "NO_SOONER_THAN"),
+            ("Not until the final report was published did the researchers realize the truth.",
+             "NOT_UNTIL_INVERSION"),
+        ]
+        for text, expected_cue in cases:
+            with self.subTest(text=text):
+                sentence = self.analyze_one(text)
+                diagnostic = sentence.get("syntax_validation")
+                self.assertIsInstance(diagnostic, dict)
+                self.assertIn(expected_cue, {c["kind"] for c in diagnostic["cues"]})
+                self.assertIn(diagnostic["status"], {"unverified", "review"})
+
+        sentence = self.analyze_one("She allowed him to leave and found the answer useful.")
+        hints = sentence["syntax_validation"]["verb_frame_hints"]
+        self.assertTrue({"allow", "find"}.issubset({h["lemma"] for h in hints}))
+
+
+    def test_experiment_c_negative_controls(self):
+        """No positive cue should be emitted for superficially similar sentences."""
+        negatives = [
+            "The more careful student finished the assignment.",
+            "No sooner option was available to the committee.",
+            "The researchers did not wait until the report was published.",
+            "She gave him more time than he expected.",
+            "The less expensive option was selected.",
+        ]
+        for text in negatives:
+            with self.subTest(text=text):
+                sentence = self.analyze_one(text)
+                self.assertEqual(sentence["syntax_validation"]["cues"], [], text)
+
+
+    def test_experiment_c_coverage_report(self):
+        """Publish transparent cue coverage, including unsupported syntax types."""
+        from scripts.report_experiment_c_coverage import main
+        report = main()
+        self.assertEqual(report["positives"], 10)
+        self.assertEqual(report["negatives"], 8)
+        self.assertEqual(len(report["details"]["positive"]), 10)
+        self.assertEqual(len(report["details"]["negative"]), 8)
+
     def test_diverse_sentence_smoke(self):
         sentences = [
             "I want to leave.",
