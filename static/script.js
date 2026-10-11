@@ -20,7 +20,7 @@ ocrButton.addEventListener("click",async()=>{
  }catch(error){ocrStatus.textContent="読み取りに失敗しました："+error.message;}
  finally{if(worker)await worker.terminate();ocrButton.disabled=false;}
 });
-textarea.addEventListener("input",()=>{parsedSentences=[];result.replaceChildren();chosen.hidden=true;status.textContent="英文を編集しました。解析を実行してください。";});
+textarea.addEventListener("input",()=>{parsedSentences=[];result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;status.textContent="英文を編集しました。解析を実行してください。";});
 const button=document.getElementById("analyzeButton");
 const textarea=document.getElementById("sentence");
 const status=document.getElementById("status");
@@ -31,7 +31,7 @@ const REQUEST_TIMEOUT_MS=90000;
 let parsedSentences=[];
 function sentenceText(s){return (s.text||s.original_text||((s.tokens||[]).map(t=>t.text).join(" "))).trim();}
 function showCandidates(){
-  result.replaceChildren();chosen.hidden=true;
+  result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;
   const mode=document.querySelector('input[name="selectionMode"]:checked').value;
   const candidates=parsedSentences.map((sentence,index)=>({sentence,index,text:sentenceText(sentence)})).filter(x=>x.text);
   if(mode==="auto") candidates.sort((a,b)=>Array.from(b.text).length-Array.from(a.text).length||a.index-b.index);
@@ -40,13 +40,13 @@ function showCandidates(){
   displayed.forEach(({index,text})=>{
     const choice=document.createElement("button");choice.type="button";choice.className="sentence-choice";
     choice.textContent=(index+1)+". "+text;
-    choice.addEventListener("click",()=>{result.querySelectorAll(".sentence-choice").forEach(x=>x.classList.remove("selected"));choice.classList.add("selected");chosenText.textContent=text;chosen.hidden=false;});
+    choice.addEventListener("click",()=>{result.querySelectorAll(".sentence-choice").forEach(x=>x.classList.remove("selected"));choice.classList.add("selected");chosenText.textContent=text;chosen.hidden=false;diagnosis.hidden=true;});
     result.appendChild(choice);
   });
 }
 document.querySelectorAll('input[name="selectionMode"]').forEach(r=>r.addEventListener("change",()=>{if(parsedSentences.length)showCandidates();}));
 button.addEventListener("click",async()=>{
- const text=textarea.value.trim();if(!text){status.textContent="英文を入力してください。";result.replaceChildren();chosen.hidden=true;return;}
+ const text=textarea.value.trim();diagnosis.hidden=true;if(!text){status.textContent="英文を入力してください。";result.replaceChildren();chosen.hidden=true;return;}
  button.disabled=true;parsedSentences=[];result.replaceChildren();chosen.hidden=true;status.textContent="解析中...";
  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT_MS);
  try{
@@ -80,7 +80,7 @@ function makeWordButtons(container,tokens,callback){
 function paint(container,ids){container.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",ids.has(Number(b.dataset.index))));}
 document.getElementById("startDiagnosis").addEventListener("click",async()=>{
  diagnosis.hidden=false;rolesPanel.hidden=true;summary.hidden=true;diagnosisStatus.textContent="診断の準備中...";
- diagnosticData=null;unknown=new Set();answers=[];roleIndex=0;
+ diagnosticData=null;unknown=new Set();answers=[];roleIndex=0;diagnosisWords.replaceChildren();unknownWords.textContent="";
  try{
   const res=await fetch("/api/diagnose/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:chosenText.textContent})});
   const data=await res.json();if(!res.ok)throw new Error(data.error||"準備できませんでした。");
@@ -110,6 +110,7 @@ document.getElementById("addRange").addEventListener("click",()=>{if(anchor!==nu
 document.getElementById("noRole").addEventListener("click",()=>{anchor=null;pending=[];selected=new Set();paint(roleWords,selected);selectedRanges.textContent="なしを選択";});
 document.getElementById("submitRole").addEventListener("click",()=>{
  if(anchor!==null){pending.push(anchor);anchor=null;}
+ if(!pending.length&&selectedRanges.textContent!=="なしを選択"){selectedRanges.textContent="範囲を選択するか「なし」を押してください。";return;}
  const role="SVOC"[roleIndex];const expected=new Set(diagnosticData.roles[role].flatMap(e=>e.token_ids));
  const actual=new Set(pending);
  const correct=expected.size===actual.size&&[...expected].every(x=>actual.has(x));
