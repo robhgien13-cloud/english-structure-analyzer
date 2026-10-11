@@ -1,0 +1,226 @@
+{
+  "schema_version": "smoke-sentences-1",
+  "note": "Sentences only, not approved role gold labels",
+  "cases": [
+    {
+      "id": "G001",
+      "sentence": "She is happy."
+    },
+    {
+      "id": "G002",
+      "sentence": "The tall boy runs fast."
+    },
+    {
+      "id": "G003",
+      "sentence": "I read a book."
+    },
+    {
+      "id": "G004",
+      "sentence": "She gave me a book."
+    },
+    {
+      "id": "G005",
+      "sentence": "I found the book useful."
+    },
+    {
+      "id": "G006",
+      "sentence": "The dog barked loudly."
+    },
+    {
+      "id": "G007",
+      "sentence": "My father is a doctor."
+    },
+    {
+      "id": "G008",
+      "sentence": "We watched the movie."
+    },
+    {
+      "id": "G009",
+      "sentence": "They elected him president."
+    },
+    {
+      "id": "G010",
+      "sentence": "The teacher showed us a picture."
+    },
+    {
+      "id": "G011",
+      "sentence": "The man who smiled left."
+    },
+    {
+      "id": "G012",
+      "sentence": "The boy who lives here runs fast."
+    },
+    {
+      "id": "G013",
+      "sentence": "The book that I bought yesterday was expensive."
+    },
+    {
+      "id": "G014",
+      "sentence": "The woman whom we met yesterday is a scientist."
+    },
+    {
+      "id": "G015",
+      "sentence": "The house where I grew up has disappeared."
+    },
+    {
+      "id": "G016",
+      "sentence": "When I arrived home, my mother was cooking dinner."
+    },
+    {
+      "id": "G017",
+      "sentence": "Because it was raining, we stayed inside."
+    },
+    {
+      "id": "G018",
+      "sentence": "If you study hard, you will improve."
+    },
+    {
+      "id": "G019",
+      "sentence": "Although he was tired, he continued working."
+    },
+    {
+      "id": "G020",
+      "sentence": "I will call you after I finish my homework."
+    },
+    {
+      "id": "G021",
+      "sentence": "I think that she is right."
+    },
+    {
+      "id": "G022",
+      "sentence": "What he said surprised everyone."
+    },
+    {
+      "id": "G023",
+      "sentence": "I know where she lives."
+    },
+    {
+      "id": "G024",
+      "sentence": "That he passed the exam is surprising."
+    },
+    {
+      "id": "G025",
+      "sentence": "She asked whether I was ready."
+    },
+    {
+      "id": "G026",
+      "sentence": "There are many books on the desk."
+    },
+    {
+      "id": "G027",
+      "sentence": "There was a problem with the plan."
+    },
+    {
+      "id": "G028",
+      "sentence": "It is important to learn English."
+    },
+    {
+      "id": "G029",
+      "sentence": "It seems that he is honest."
+    },
+    {
+      "id": "G030",
+      "sentence": "It was difficult for me to answer."
+    },
+    {
+      "id": "G031",
+      "sentence": "She wants to become a doctor."
+    },
+    {
+      "id": "G032",
+      "sentence": "To read books is enjoyable."
+    },
+    {
+      "id": "G033",
+      "sentence": "He decided to leave early."
+    },
+    {
+      "id": "G034",
+      "sentence": "I enjoy playing tennis."
+    },
+    {
+      "id": "G035",
+      "sentence": "Swimming in the sea is fun."
+    },
+    {
+      "id": "G036",
+      "sentence": "The girl sitting by the window is my sister."
+    },
+    {
+      "id": "G037",
+      "sentence": "The letter written in English was difficult."
+    },
+    {
+      "id": "G038",
+      "sentence": "She opened the door and entered the room."
+    },
+    {
+      "id": "G039",
+      "sentence": "He is smart but sometimes careless."
+    },
+    {
+      "id": "G040",
+      "sentence": "The book that my teacher recommended yesterday was surprisingly difficult to understand."
+    },
+    {
+      "id": "G041",
+      "sentence": "The student who won the prize thanked the teacher who had helped her."
+    },
+    {
+      "id": "G042",
+      "sentence": "The book I borrowed from the library contains stories that children can easily understand."
+    },
+    {
+      "id": "G043",
+      "sentence": "What she discovered during the experiment surprised the researchers who were watching her."
+    },
+    {
+      "id": "G044",
+      "sentence": "Although the road was slippery, the driver stopped the car before it reached the bridge."
+    },
+    {
+      "id": "G045",
+      "sentence": "It was difficult for the children to understand what the scientist had explained."
+    },
+    {
+      "id": "G046",
+      "sentence": "Walking through the park, she noticed a boy sitting alone under a tree."
+    },
+    {
+      "id": "G047",
+      "sentence": "She opened the window, picked up her bag, and left the room without saying goodbye."
+    },
+    {
+      "id": "G048",
+      "sentence": "The documents that had been sent yesterday were carefully examined by the manager."
+    },
+    {
+      "id": "G049",
+      "sentence": "The teacher considered the explanation that the student had given surprisingly clear."
+    },
+    {
+      "id": "G050",
+      "sentence": "When the boy who had lost his wallet realized that someone had found it, he decided to call the police."
+    },
+    {
+      "id": "G051",
+      "sentence": "Not until the final results were announced did the researchers realize how serious the problem had become."
+    },
+    {
+      "id": "G052",
+      "sentence": "Had the engineer checked the equipment more carefully before the experiment, the unexpected failure might have been prevented."
+    },
+    {
+      "id": "G053",
+      "sentence": "It was the report submitted by the assistant last Friday that the committee discussed during the meeting in the main conference room."
+    },
+    {
+      "id": "G054",
+      "sentence": "The professor with whom the students had discussed the theory in detail published an article about its limitations in an international journal."
+    },
+    {
+      "id": "G055",
+      "sentence": "The more carefully the students examined the evidence, the less certain they became about the conclusion proposed by the researcher."
+    }
+  ]
+}

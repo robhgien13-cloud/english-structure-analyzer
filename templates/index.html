@@ -1,53 +1,7 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>English Structure Analyzer</title>
-
-  <link rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}">
-</head>
-
-<body>
-
-  <main class="container">
-
-    <h1>English Structure Analyzer</h1>
-    <p class="subtitle">
-      英文を入力すると、文構造を解析します。
-    </p>
-
-    <section class="input-area">
-
-      <label for="sentence">英文</label>
-
-      <textarea
-        id="sentence"
-        placeholder="英文を入力してください"
-        rows="6"></textarea>
-
-      <button id="analyzeButton">
-        構造を解析
-      </button>
-
-    </section>
-
-    <section id="resultArea" class="result-area">
-
-      <h2>解析結果</h2>
-
-      <div id="status">
-        英文を入力して「構造を解析」を押してください。
-      </div>
-
-      <div id="result"></div>
-
-    </section>
-
-  </main>
-
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-
-</body>
-</html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>英文読解診断 | 文を選ぶ</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
+<body><main class="container"><h1>英文読解診断</h1><p class="subtitle">まず診断する英文を選びましょう。</p>
+<section class="input-area"><h2>入力方法</h2><label for="imageInput">写真・画像から英文を読み取る</label><input id="imageInput" type="file" accept="image/*" aria-describedby="ocrHint"><p id="ocrHint" class="subtitle">スマホの写真や画像ファイルを選択できます。画像はブラウザ内で文字認識し、アプリのサーバーには送信しません。初回はOCR用データをダウンロードします。</p><button id="ocrButton" type="button">画像から英文を読み取る</button><div id="ocrStatus" role="status" aria-live="polite"></div><p class="subtitle">読み取った英文を下で確認・修正してから解析してください。</p><label for="sentence">英文を入力・確認・修正</label><textarea id="sentence" rows="7" placeholder="英文を複数文入力してください"></textarea>
+<fieldset><legend>文の選択方法</legend><label class="choice"><input type="radio" name="selectionMode" value="auto" checked> 自動選択：長い順に最大5文</label><label class="choice"><input type="radio" name="selectionMode" value="manual"> 手動選択：すべての文から選ぶ</label></fieldset>
+<button id="analyzeButton">英文を解析して候補を表示</button></section>
+<section class="result-area"><h2>診断する文を選択</h2><div id="status" role="status">英文を入力してください。</div><div id="result"></div><p id="selectionHint"></p><section id="chosen" hidden><h3>選択した英文</h3><p id="chosenText"></p><button id="startDiagnosis" type="button">選択した文の診断を開始</button></section><section id="diagnosis" class="result-area" hidden><p id="diagnosisProgress"></p><details><summary>選び方を見る（例文）</summary><p>単語をタップして選択・解除。離れた単語も選択できます。</p><p>She is happy. → S: She / V: is / C: happy</p><p>I gave him a book. → S: I / V: gave / O: him, a book</p><p>She sings and dances. → S: She / V: sings, dances</p></details><div class="original-sticky"><strong>診断中の原文</strong><p id="diagnosisOriginal"></p></div><h2>単語と文構造の診断（試験版）</h2><p class="subtitle">最初に分からない単語をタップして登録します。その後、構造診断へ進んでください。</p><div id="diagnosisStatus" role="status"></div><div id="diagnosisWords" class="word-row"></div><div id="unknownWords"></div><button id="beginRoles" type="button">S/V/O/Cの診断へ進む</button><section id="rolesPanel" hidden><h3 id="rolePrompt"></h3><p class="subtitle">必要な単語を1つずつタップしてください。離れた単語も選べます。もう一度タップすると解除します。「なし」も選べます。</p><div id="roleWords" class="word-row"></div><p id="selectedRanges"></p><button id="noRole" type="button">この要素はなし</button><button id="submitRole" type="button">回答を確定して次へ</button></section><section id="diagnosisSummary" hidden></section></section><section id="combinedReport" class="result-area" hidden></section></main><script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script><script src="{{ url_for('static',filename='script.js') }}"></script></body></html>
