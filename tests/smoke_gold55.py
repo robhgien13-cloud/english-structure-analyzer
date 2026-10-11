@@ -1,0 +1,39 @@
+"""Smoke-test the real spaCy-backed analyzer on 55 approved English sentences.
+
+Run after the approved dataset is committed to tests/data/gold55_unified.json.
+This tests execution and output shape, NOT gold-label accuracy.
+"""
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from analyzer import EnglishStructureAnalyzer
+
+GOLD = ROOT / "tests" / "data" / "gold55_unified.json"
+
+def main():
+    if not GOLD.exists():
+        raise SystemExit("MISSING GOLD: tests/data/gold55_unified.json must be added before smoke test")
+    cases = json.loads(GOLD.read_text(encoding="utf-8"))["cases"]
+    assert len(cases) == 55
+    analyzer = EnglishStructureAnalyzer()
+    failures = []
+    for case in cases:
+        try:
+            result = analyzer.analyze(case["sentence"])
+            if not isinstance(result, dict) or not result:
+                raise ValueError("Empty or non-object analyzer output")
+            print(f'{case["id"]}: parsed')
+        except Exception as exc:
+            failures.append({"id": case["id"], "error": str(exc)})
+            print(f'{case["id"]}: ERROR {exc}')
+    report = {"total": len(cases), "executed": len(cases) - len(failures),
+              "errors": failures, "gold_accuracy": "NOT MEASURED"}
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    if failures:
+        raise SystemExit(1)
+
+if __name__ == "__main__":
+    main()
