@@ -1,0 +1,41 @@
+name: Experiment C post-fix 40 comparison
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/syntax-validation-c
+    paths:
+      - '.github/workflows/experiment-c-postfix-40.yml'
+      - 'analyzer.py'
+      - 'syntax_validation.py'
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parser
+        run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - name: Syntax regression
+        run: python -m unittest discover -s tests -p test_syntax_validation.py
+      - name: Generate 40 predictions
+        run: python scripts/experiment_spacy_40.py
+      - name: Compare unapproved candidate
+        run: python scripts/compare_gold_candidate_40_from_baseline.py
+      - name: Trace six cases
+        run: python scripts/trace_experiment_c_six_cases.py
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-c-postfix-40
+          path: |
+            parser-40-results/spacy-app-normalized.json
+            parser-40-results/candidate_comparison.json
+            parser-40-results/experiment-c-six-case-trace.json
+          if-no-files-found: warn
