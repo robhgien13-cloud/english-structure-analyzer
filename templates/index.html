@@ -1,53 +1,7 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>English Structure Analyzer</title>
-
-  <link rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}">
-</head>
-
-<body>
-
-  <main class="container">
-
-    <h1>English Structure Analyzer</h1>
-    <p class="subtitle">
-      英文を入力すると、文構造を解析します。
-    </p>
-
-    <section class="input-area">
-
-      <label for="sentence">英文</label>
-
-      <textarea
-        id="sentence"
-        placeholder="英文を入力してください"
-        rows="6"></textarea>
-
-      <button id="analyzeButton">
-        構造を解析
-      </button>
-
-    </section>
-
-    <section id="resultArea" class="result-area">
-
-      <h2>解析結果</h2>
-
-      <div id="status">
-        英文を入力して「構造を解析」を押してください。
-      </div>
-
-      <div id="result"></div>
-
-    </section>
-
-  </main>
-
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-
-</body>
-</html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>英文読解診断 | 文を選ぶ</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
+<body><main class="container"><h1>英文読解診断</h1><p class="subtitle">まず診断する英文を選びましょう。</p>
+<section class="input-area"><label for="sentence">英文を入力</label><textarea id="sentence" rows="7" placeholder="英文を複数文入力してください"></textarea>
+<fieldset><legend>文の選択方法</legend><label class="choice"><input type="radio" name="selectionMode" value="auto" checked> 自動選択：長い順に最大5文</label><label class="choice"><input type="radio" name="selectionMode" value="manual"> 手動選択：すべての文から選ぶ</label></fieldset>
+<button id="analyzeButton">英文を解析して候補を表示</button></section>
+<section class="result-area"><h2>診断する文を選択</h2><div id="status" role="status">英文を入力してください。</div><div id="result"></div><section id="chosen" hidden><h3>選択した英文</h3><p id="chosenText"></p><p class="subtitle">次の開発段階で、この文の未知語確認とS/V/O/C診断を接続します。</p></section></section></main><script src="{{ url_for('static',filename='script.js') }}"></script></body></html>
