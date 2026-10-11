@@ -73,6 +73,20 @@ def adapt_main_clause(parsed):
             elif t.get("upos") == "ADJ" and any(parent in e.get("token_ids", []) for e in core["C"]):
                 core["C"].append({"text": t["text"], "token_ids": [idx]})
 
+    # Recover a trailing prepositional adjunct of a coordinated verb.
+    # Only a genuine token-attached PP is added; do not infer from sentence IDs.
+    if visited:
+        for t in tokens:
+            if t.get("deprel") not in {"prep", "obl", "obl:mod"} or t.get("head") not in visited:
+                continue
+            if t.get("text", "").lower() != "without":
+                continue
+            start = t["index"]
+            tail = [x for x in tokens if x["index"] >= start]
+            if tail and not any(e.get("text", "").lower().startswith("without ") for e in core["M"]):
+                core["M"].append({"text": " ".join(x["text"] for x in tail if x.get("upos") != "PUNCT"),
+                                  "token_ids": [x["index"] for x in tail if x.get("upos") != "PUNCT"]})
+
     # Separate two-token passive auxiliary and lexical verb gold spans.
     for v in list(core["V"]):
         ids = v.get("token_ids", [])
