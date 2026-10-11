@@ -1,0 +1,31 @@
+name: Experiment C coordination contrast checks
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/syntax-validation-c
+    paths:
+      - '.github/workflows/experiment-c-coordination-contrast.yml'
+      - 'scripts/test_experiment_c_coordination_smoke.py'
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parser
+        run: |
+          pip install 'spacy>=3.8,<4'
+          python -m spacy download en_core_web_sm
+      - name: Check positive and negative coordination examples
+        run: python scripts/test_experiment_c_coordination_smoke.py
+      - name: Upload case results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-c-coordination-smoke
+          path: parser-40-results/experiment-c-coordination-smoke.json
+          if-no-files-found: warn
