@@ -164,6 +164,26 @@ class EnglishStructureAnalyzer:
                 head=head,
                 deprel=dep,
             ))
+        # Fallback for fronted fused-relative subjects when spaCy makes the
+        # embedded verb ROOT and absorbs the matrix verb into its object span.
+        # This repair uses the surface order and finite-verb tags, not the
+        # mistaken dependency label of the matrix predicate.
+        if words and words[0].text.lower() == 'what':
+            embedded = next((w for w in words if w.deprel == 'root' and w.upos == 'VERB'), None)
+            if embedded is not None:
+                candidates = [w for w in words if w.id > embedded.id
+                              and w.upos == 'VERB' and w.xpos in {'VBD', 'VBP', 'VBZ'}
+                              and any(n.id > w.id and n.upos in {'NOUN', 'PROPN', 'PRON'}
+                                      for n in words)]
+                if len(candidates) == 1:
+                    matrix = candidates[0]
+                    embedded.deprel, embedded.head = 'csubj', matrix.id
+                    matrix.deprel, matrix.head = 'root', 0
+                    for w in words:
+                        if w.id > matrix.id and w.deprel in {'obj', 'dobj'} and w.head == embedded.id:
+                            w.head = matrix.id
+                        if w.id > matrix.id and w.upos in {'NOUN', 'PROPN', 'PRON'} and w.head == embedded.id:
+                            w.deprel, w.head = 'obj', matrix.id
         return Sentence(text=span.text, words=words)
 
     def analyze(self, text: str) -> dict:
