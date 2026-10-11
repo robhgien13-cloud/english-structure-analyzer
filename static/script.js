@@ -110,16 +110,17 @@ document.getElementById("beginRoles").addEventListener("click",()=>{
 });
 function renderRole(){
  if(roleIndex>=4){finishRoles();return;}
- anchor=null;pending=[];selected=new Set();noRoleChosen=false;rolePrompt.textContent=roleNames[roleIndex]+"を選択してください";
+ anchor=null;pending=[];selected=new Set();noRoleChosen=false;
+ rolePrompt.textContent=roleNames[roleIndex]+"を選択してください";
  makeWordButtons(roleWords,diagnosticData.tokens,id=>{
   noRoleChosen=false;
-  if(anchor===null){anchor=id;selected=new Set([...pending,id]);}
-  else{const low=Math.min(anchor,id),high=Math.max(anchor,id);pending=[...new Set([...pending,...diagnosticData.tokens.filter(t=>t.index>=low&&t.index<=high&&t.upos!=="PUNCT"&&t.text&&t.text.trim()).map(t=>t.index)])];selected=new Set(pending);anchor=null;}
-  paint(roleWords,selected);selectedRanges.textContent="選択："+diagnosticData.tokens.filter(t=>selected.has(t.index)).map(t=>t.text).join(" ");
+  if(selected.has(id))selected.delete(id);else selected.add(id);
+  pending=[...selected];
+  paint(roleWords,selected);
+  selectedRanges.textContent="選択："+(diagnosticData.tokens.filter(t=>selected.has(t.index)).map(t=>t.text).join(" ")||"なし");
  });
  selectedRanges.textContent="まだ選択されていません。";
 }
-document.getElementById("addRange").addEventListener("click",()=>{if(anchor!==null){pending=[...new Set([...pending,anchor])];anchor=null;}selected=new Set(pending);paint(roleWords,selected);selectedRanges.textContent="選択："+(diagnosticData.tokens.filter(t=>selected.has(t.index)).map(t=>t.text).join(" ")||"なし");});
 document.getElementById("noRole").addEventListener("click",()=>{anchor=null;pending=[];selected=new Set();noRoleChosen=true;paint(roleWords,selected);selectedRanges.textContent="なしを選択";});
 document.getElementById("submitRole").addEventListener("click",()=>{
  if(anchor!==null){pending.push(anchor);anchor=null;}
