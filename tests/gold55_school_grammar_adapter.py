@@ -20,7 +20,7 @@ def adapt_main_clause(parsed):
     # Negative-fronted temporal adjunct + subject-auxiliary inversion.
     # Identify the finite auxiliary after the fronted clause and recover the
     # main subject and predicate from token order, without gold lookup.
-    if re.match(r"^not until\\b", text, re.I):
+    if re.match(r"^not until\b", text, re.I):
         ordered = sorted(tokens, key=lambda t: t["index"])
         aux = next((t for t in ordered if t.get("upos") == "AUX"
                     and t.get("text", "").lower() in {"did", "does", "do"}), None)
