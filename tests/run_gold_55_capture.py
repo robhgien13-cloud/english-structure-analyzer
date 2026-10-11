@@ -68,8 +68,6 @@ def main():
         cid = f"G{i:03d}"
         try:
             outputs[cid] = parser.analyze(sentence)
-            if cid == "G051":
-                print("INVERSION TOKENS", [(t.get("index"),t.get("text"),t.get("upos"),t.get("deprel"),t.get("head")) for t in outputs[cid]["sentences"][0]["tokens"]], flush=True)
             roles = adapt_main_clause(outputs[cid])
             predictions[cid] = {role: [item.get('text', '') for item in roles[role]] for role in 'SVOCM'}
             print(cid, "OK", flush=True)
@@ -86,5 +84,5 @@ def main():
                     "predictions":predictions,"gold_accuracy":accuracy},
                    ensure_ascii=False, indent=2), encoding="utf-8")
     print("TOTAL",len(SENTENCES),"SUCCESS",len(outputs),"ERRORS",len(errors),flush=True)
-    if errors: raise SystemExit(1)
+    if errors or accuracy.get("passed") != 55: raise SystemExit(1)
 if __name__ == "__main__": main()
