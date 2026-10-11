@@ -242,7 +242,11 @@ class EnglishStructureAnalyzer:
             if ch.deprel == 'xcomp' and head.lemma.lower() in {'want', 'decide', 'enjoy', 'continue'}:
                 role = 'O'
                 ref['role'] = role
-            if ch.deprel != 'advcl':
+            formal_it = any(s['text'].lower() == 'it' for s in core['S'])
+            extraposed_clause = (formal_it and
+                ((ch.deprel == 'xcomp' and (head.lemma or '').lower() == 'be') or
+                 (ch.deprel == 'ccomp' and (head.lemma or '').lower() == 'seem')))
+            if ch.deprel != 'advcl' and not extraposed_clause:
                 core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
 
