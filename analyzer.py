@@ -258,7 +258,7 @@ class EnglishStructureAnalyzer:
                 core['S'].append(elem)
             for subj in core['S']:
                 for child in children.get(subj['head_token'], []):
-                    if child.deprel == 'obl' and not (subj['text'].lower() == 'a problem' and child.text.lower() == 'plan'):
+                    if child.deprel == 'obl' and not any(c.deprel == 'case' and c.lemma.lower() == 'with' for c in children.get(child.id, [])):
                         mod = self._element(child, 'M', children, ids)
                         if not any(x['head_token'] == child.id for x in core['M']):
                             core['M'].append(mod)
