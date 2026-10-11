@@ -16,7 +16,7 @@ def load_gold():
     return json.loads(zlib.decompress(base64.b64decode(data)).decode("utf-8"))
 
 def normalize(x):
-    return re.sub(r"\\s+", " ", x).strip().lower()
+    return re.sub(r"\s+", " ", x).strip().lower()
 
 def texts(values):
     return sorted(normalize(x) for x in values)
