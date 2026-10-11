@@ -1,6 +1,8 @@
 name: Gold regression environment and special syntax smoke test
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [experiment/spacy-correction-40]
   push:
     branches: [test/gold-55-regression]
 jobs:
