@@ -488,7 +488,7 @@ class EnglishStructureAnalyzer:
     def _span_text(self, w, children):
         ids=sorted(self._subtree_ids(w.id,children))
         all_nodes={x.id:x for vals in children.values() for x in vals}; all_nodes[w.id]=w
-        return ' '.join(all_nodes[i].text for i in ids if i in all_nodes)
+        return ' '.join(all_nodes[i].text for i in ids if i in all_nodes and all_nodes[i].upos != 'PUNCT')
 
     @staticmethod
     def _linking_verb(lemma):
