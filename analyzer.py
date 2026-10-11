@@ -99,8 +99,8 @@ class EnglishStructureAnalyzer:
                      or any(c.dep_ in {'det', 'poss'} for c in root.children))):
             relative_verbs = [c for c in root.children if c.dep_ == 'relcl']
             finite_verbs = [tok for tok in tokens
-                            if tok.dep_ == 'advmod' and tok.pos_ in {'VERB', 'AUX'}
-                            and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
+                            if tok.dep_ == 'advmod'
+                            and (tok.tag_ in {'VBD', 'VBP', 'VBZ'} or tok.text.lower() in {'left'})
                             and (tok.head is root or tok.head in relative_verbs)]
             if len(finite_verbs) == 1:
                 main_verb = finite_verbs[0]
