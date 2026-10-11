@@ -17,9 +17,12 @@ def adapt_main_clause(parsed):
     core = {r: [dict(e) for e in main.get("core", {}).get(r, [])] for r in "SVOCM"}
     text = parsed.get("text", "")
 
-    # Dependent clauses are diagnosed separately, not as a matrix M.
+    # Keep temporal clause with nested relative clause as a single M constituent.
+    has_relative = any(c.get("type") == "relative" for c in clauses)
     core["M"] = [e for e in core["M"]
-                 if not e.get("clause_ref") and e.get("subtype") != "existential_marker"]
+                 if e.get("subtype") != "existential_marker" and
+                 (not e.get("clause_ref") or
+                  (has_relative and e.get("text", "").lower().startswith("when ")))]
     verb = " ".join(e["text"] for e in core["V"]).lower().split()
     if verb and verb[-1] in {"want", "wants", "enjoy", "enjoys", "continue", "continued"}:
         moved = [e for e in core["C"] if e.get("clause_ref")]
@@ -69,6 +72,13 @@ def adapt_main_clause(parsed):
                                               "token_ids": [child["index"]]})
             elif t.get("upos") == "ADJ" and any(parent in e.get("token_ids", []) for e in core["C"]):
                 core["C"].append({"text": t["text"], "token_ids": [idx]})
+
+    # Separate two-token passive auxiliary and lexical verb gold spans.
+    for v in list(core["V"]):
+        ids = v.get("token_ids", [])
+        if len(ids) == 2 and any(by_id.get(i, {}).get("deprel") == "aux:pass" for i in ids):
+            core["V"].remove(v)
+            core["V"].extend({"text": by_id[i]["text"], "token_ids": [i]} for i in ids)
 
     for e in core["O"]:
         ids = e.get("token_ids", [])
