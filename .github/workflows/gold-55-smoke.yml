@@ -19,7 +19,7 @@ jobs:
           pip install spacy
           python -m spacy download en_core_web_sm
       - name: Run parser on G051-G055 and store actual outputs
-        run: python tests/run_special_syntax_smoke.py
+        run: PYTHONPATH=. python tests/run_special_syntax_smoke.py
       - name: Upload actual outputs for human-reviewed scoring
         if: always()
         uses: actions/upload-artifact@v4
