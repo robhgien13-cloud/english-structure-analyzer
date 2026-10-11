@@ -33,6 +33,9 @@ def compare():
     for case in gold:
         try:
             result = analyzer.analyze(case["sentence"])
+            if case["id"] == "G022":
+                print("G022 DEBUG TOKENS:", [(t["text"], t["upos"], t["xpos"], t["head"], t["deprel"]) for t in result["sentences"][0]["tokens"]])
+                print("G022 DEBUG CLAUSES:", [(c["type"], c["text"]) for c in result["sentences"][0]["clauses"]])
             main = main_clause(result)
             if main is None:
                 print(f'{case["id"]}: NO MAIN CLAUSE')
