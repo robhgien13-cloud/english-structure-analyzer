@@ -17,6 +17,40 @@ def adapt_main_clause(parsed):
     core = {r: [dict(e) for e in main.get("core", {}).get(r, [])] for r in "SVOCM"}
     text = parsed.get("text", "")
 
+    # Negative-fronted temporal adjunct + subject-auxiliary inversion.
+    # Identify the finite auxiliary after the fronted clause and recover the
+    # main subject and predicate from token order, without gold lookup.
+    if re.match(r"^not until\\b", text, re.I):
+        ordered = sorted(tokens, key=lambda t: t["index"])
+        aux = next((t for t in ordered if t.get("upos") == "AUX"
+                    and t.get("text", "").lower() in {"did", "does", "do"}), None)
+        if aux:
+            after_aux = [t for t in ordered if t["index"] > aux["index"]]
+            lexical = next((t for t in after_aux if t.get("upos") == "VERB"), None)
+            if lexical:
+                subject_candidates = [t for t in after_aux
+                                      if t["index"] < lexical["index"]
+                                      and t.get("upos") in {"NOUN", "PROPN", "PRON"}]
+                if subject_candidates:
+                    subject = subject_candidates[-1]
+                    subject_ids = {subject["index"]}
+                    subject_ids |= {t["index"] for t in ordered
+                                    if t.get("head") == subject["index"]
+                                    and t.get("deprel") in
+                                    {"det", "amod", "compound", "nmod:poss", "nummod"}}
+                    core["S"] = [{"text": " ".join(by_id[i]["text"] for i in sorted(subject_ids)),
+                                  "token_ids": sorted(subject_ids)}]
+                    core["V"] = [{"text": aux["text"] + " ... " + lexical["text"],
+                                  "token_ids": [aux["index"], lexical["index"]]}]
+                    wh = next((t for t in ordered if t["index"] > lexical["index"]
+                               and t.get("text", "").lower() in
+                               {"how", "what", "why", "where", "when", "whether"}), None)
+                    if wh:
+                        object_tokens = [t for t in ordered if t["index"] >= wh["index"]
+                                         and t.get("upos") != "PUNCT"]
+                        core["O"] = [{"text": " ".join(t["text"] for t in object_tokens),
+                                      "token_ids": [t["index"] for t in object_tokens]}]
+
     # Keep temporal clause with nested relative clause as a single M constituent.
     has_relative = any(c.get("type") == "relative" for c in clauses)
     core["M"] = [e for e in core["M"]
