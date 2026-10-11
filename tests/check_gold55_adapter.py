@@ -20,6 +20,8 @@ predictions = {}
 for case in cases:
     try:
         output = analyzer.analyze(case["sentence"])
+        if not isinstance(output, dict):
+            raise ValueError("Analyzer did not return a dict")
         roles = adapt_main_clause(output)
         if set(roles) != set("SVOCM"):
             raise ValueError("Missing roles")
