@@ -20,10 +20,14 @@ jobs:
           python -m spacy download en_core_web_sm
       - name: Run parser on all G001-G055 and store actual outputs
         run: PYTHONPATH=. python tests/run_gold_55_capture.py
+      - name: Diagnose coordination and inversion without masking known failures
+        run: PYTHONPATH=. python tests/diagnose_four_structures.py
       - name: Upload actual outputs for human-reviewed scoring
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: g001-g055-parser-output
-          path: artifacts/g001-g055-actual.json
+          path: |
+            artifacts/g001-g055-actual.json
+            artifacts/focused-four-diagnostic.json
           if-no-files-found: warn
