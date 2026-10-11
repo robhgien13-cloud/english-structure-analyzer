@@ -1,6 +1,6 @@
 """Smoke-test the real spaCy-backed analyzer on 55 approved English sentences.
 
-Run after the approved dataset is committed to tests/data/gold55_unified.json.
+Run after the sentence fixture is committed to tests/data/gold55_sentences.json.
 This tests execution and output shape, NOT gold-label accuracy.
 """
 import json
@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from analyzer import EnglishStructureAnalyzer
 
-GOLD = ROOT / "tests" / "data" / "gold55_unified.json"
+GOLD = ROOT / "tests" / "data" / "gold55_sentences.json"
 
 def main():
     if not GOLD.exists():
