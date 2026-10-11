@@ -87,6 +87,14 @@ def adapt_main_clause(parsed):
                 core["M"].append({"text": " ".join(x["text"] for x in tail if x.get("upos") != "PUNCT"),
                                   "token_ids": [x["index"] for x in tail if x.get("upos") != "PUNCT"]})
 
+    # Coordinated predicative adjectives share the copular complement role.
+    for t in tokens:
+        if t.get("upos") != "ADJ" or t.get("deprel") != "conj":
+            continue
+        if any(t.get("head") in e.get("token_ids", []) for e in core["C"]):
+            if not any(t["index"] in e.get("token_ids", []) for e in core["C"]):
+                core["C"].append({"text": t["text"], "token_ids": [t["index"]]})
+
     # Separate two-token passive auxiliary and lexical verb gold spans.
     for v in list(core["V"]):
         ids = v.get("token_ids", [])
