@@ -16,6 +16,7 @@ cases = json.loads((ROOT / "tests/data/gold55_sentences.json").read_text(encodin
 assert len(cases) == 55
 analyzer = EnglishStructureAnalyzer()
 errors = []
+predictions = {}
 for case in cases:
     try:
         output = analyzer.analyze(case["sentence"])
@@ -24,10 +25,12 @@ for case in cases:
             raise ValueError("Missing roles")
         if not all(isinstance(roles[r], list) for r in "SVOCM"):
             raise ValueError("Role is not a list")
+        predictions[case["id"]] = {r: [item.get("text", "") for item in roles[r]] for r in "SVOCM"}
         print(f'{case["id"]}: adapter ran')
     except Exception as e:
         errors.append({"id": case["id"], "error": str(e)})
-report = {"total":len(cases),"errors":errors,"gold_accuracy":"NOT MEASURED"}
+report = {"total":len(cases),"executed":len(predictions),"errors":errors,
+          "predictions":predictions,"gold_accuracy":"NOT MEASURED"}
 (ROOT / "gold55-adapter-report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
 print(json.dumps(report,ensure_ascii=False))
 if errors:
