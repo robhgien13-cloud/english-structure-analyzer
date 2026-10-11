@@ -145,3 +145,58 @@
 - 接続詞自体は既定どおりCONJとして独立保持し、SVOCMには混入させない。
 
 **状態：規約承認済み／gold本体未修正／実装・自動テスト未検証。**
+
+
+## G001–G040 逐文監査：承認規約に基づく改訂候補（gold本体は未変更）
+
+**監査の読み方**：以下の「維持」は現行 `main.S/V/O/C` の文字列が採用規約と整合することを意味し、全構造の記録完了や独立監修済みを意味しない。「追加」は別階層の節・修飾語・参照関係等が必要なこと、「構造修正」は現行主節の役割配列では必要な並列要素が欠落することを意味する。全40件の `review_status` は現行goldでは `pending` のまま。以下は**文書上の監査提案**であり、goldの更新・実装・テスト結果ではない。
+
+| ID | 判定 | 現行主節SVOCの照合と必要な記録・理由 |
+|---|---|---|
+| G001 | 維持 | She/is/happy の SVC。追加必須事項なし。 |
+| G002 | 追加 | S=The tall boy（前置形容詞 tall を含む）、V=runs は維持。fast は runs を修飾する副詞M。 |
+| G003 | 維持 | I/read/a book の SVO。 |
+| G004 | 維持 | She/gave/me/a book の SVOO。間接O=me、直接O=a book を区別。 |
+| G005 | 維持 | I/found/the book/useful の SVOC。OとCの叙述関係を記録。 |
+| G006 | 追加 | S=The dog、V=barked は維持。loudly をV修飾のMとして記録。 |
+| G007 | 維持 | My father/is/a doctor の SVC。 |
+| G008 | 維持 | We/watched/the movie の SVO。 |
+| G009 | 維持 | They/elected/him/president の SVOC。OとCの叙述関係を記録。 |
+| G010 | 維持 | The teacher/showed/us/a picture の SVOO。間接Oと直接Oを区別。 |
+| G011 | 追加 | 主節S=The man、V=leftを維持。who smiled はmanを修飾する関係節、節内S=who、V=smiled。 |
+| G012 | 追加 | 主節S=The boy、V=runs。who lives here はboyを修飾し、節内S=who、V=lives、here=M。主節fastもM。 |
+| G013 | 追加 | 主節S=The book、V=was、C=expensive。関係節that I bought yesterdayはbookを修飾し、S=I、V=bought、O=that（先行詞book参照）、yesterday=M。 |
+| G014 | 追加 | 主節S=The woman、V=is、C=a scientist。関係節whom we met yesterdayはwomanを修飾し、S=we、V=met、O=whom（先行詞woman参照）、yesterday=M。 |
+| G015 | 追加 | 主節S=The house、V=has disappeared。where I grew up はhouseを修飾し、S=I、V=grew up、whereは場所を表す関係副詞。 |
+| G016 | 追加 | 主節S=my mother、V=was cooking、O=dinner。When I arrived home は時の副詞節、節内S=I、V=arrived、home=場所M、When=従属接続詞。 |
+| G017 | 追加 | 主節S=we、V=stayed、inside=M。Because it was raining は理由節、S=it、V=was raining、Because=従属接続詞。 |
+| G018 | 追加 | 主節S=you、V=will improve。If you study hard は条件節、S=you、V=study、hard=M、If=従属接続詞。 |
+| G019 | 追加 | 主節S=he、V=continued、O=workingを維持。Although he was tired は譲歩節（S=he、V=was、C=tired）。workingは動名詞Oで、意味上の動作主は主節he。 |
+| G020 | 追加 | 主節S=I、V=will call、O=you。after I finish my homework は時の副詞節、S=I、V=finish、O=my homework、after=従属接続詞。 |
+| G021 | 追加 | 主節S=I、V=think、O=that she is right。Oの名詞節内部はS=she、V=is、C=right。thatは節導入要素として別記録。 |
+| G022 | 追加 | 主節S=What he said（名詞節全体）、V=surprised、O=everyone。節内部S=he、V=said、O=What。 |
+| G023 | 追加 | 主節S=I、V=know、O=where she lives。節内部S=she、V=lives、whereは場所を表す疑問副詞。 |
+| G024 | 追加 | 主節S=That he passed the exam（名詞節全体）、V=is、C=surprising。節内部S=he、V=passed、O=the exam。 |
+| G025 | 追加 | 主節S=She、V=asked、O=whether I was ready。節内部S=I、V=was、C=ready、whetherは節導入要素。 |
+| G026 | 追加 | 存在構文：導入thereはSに含めず、S=many books、V=areを維持。on the deskは場所M。 |
+| G027 | 追加 | 存在構文：導入thereはSに含めず、S=a problem、V=wasを維持。with the plan はproblemの後置修飾として別記録（主節S中心には含めない）。 |
+| G028 | 追加 | S=It、V=is、C=importantを維持。to learn Englishを真主語として関連付け、内部V=learn、O=Englishを保存。 |
+| G029 | 追加・承認済み | S=It、V=seems、C=なしを維持。that he is honestを真主語相当の内容節として別保存、内部S=he、V=is、C=honest。代替分析がある旨を残す。 |
+| G030 | 追加 | S=It、V=was、C=difficultを維持。for me to answerを真主語相当の不定詞句として別保存、意味上の主語=me、V=answer。 |
+| G031 | 追加 | S=She、V=wants、O=to become a doctorを維持。不定詞内部V=become、C=a doctor、意味上の主語=She。 |
+| G032 | 追加 | S=To read books、V=is、C=enjoyableを維持。主語の不定詞句内部V=read、O=books。 |
+| G033 | 追加 | S=He、V=decided、O=to leave earlyを維持。不定詞内部V=leave、early=M、意味上の主語=He。 |
+| G034 | 追加 | S=I、V=enjoy、O=playing tennisを維持。動名詞句内部V=playing、O=tennis、意味上の主語=I。 |
+| G035 | 追加 | S=Swimming in the sea、V=is、C=funを維持。動名詞句内部V=Swimming、in the sea=M。 |
+| G036 | 追加 | 主節S=The girl、V=is、C=my sisterを維持。sitting by the windowはgirlの後置分詞修飾、by the windowは分詞句内のM。 |
+| G037 | 追加 | 主節S=The letter、V=was、C=difficultを維持。written in Englishはletterの後置過去分詞修飾、in Englishは句内M。 |
+| G038 | **構造修正** | S=Sheを共有。V1=opened/O1=the door と V2=entered/O2=the room をandが接続。現行goldはV2/O2が欠落。andはCONJ。 |
+| G039 | **構造修正** | S=He、V=isを共有。C1=smart と C2=careless をbutが接続。sometimesはcarelessのM。現行goldはC2が欠落。butはCONJ。 |
+| G040 | 追加・承認済み | 主節S=The book、V=was、C中心=difficult、C全体=surprisingly difficult to understand。surprisinglyは程度M、to understandは形容詞を補う不定詞。関係節that my teacher recommended yesterdayはbookを修飾し、節内S=my teacher、V=recommended、O=that（book参照）、yesterday=M。understandの意味上のOもbook参照。 |
+
+### 集計と実装上の留意
+- **主節の既存SVOCを維持できるもの：38/40**。ただし多くは節内部・M・関係リンク等の**追加注釈が必要**。G038・G039は並列要素の欠落により主節構造の拡張が必要。
+- この表の「維持」は**追加必須事項が少ない**という意味で、全ての意味関係やtoken範囲を検証済みとはしない。SVOOの間接/直接OやSVOCの叙述関係は構造化する。
+- 関係代名詞のO（G013/G014/G040）と不定詞の意味上のO（G040）は、**異なる節・句内の役割**としてそれぞれ参照を保存する。
+- `G015 grew up` のような句動詞・前置詞/副詞の境界や、`G030 for me to answer` の内部階層はtokenレベルで別途精査する。
+- この監査ではgold JSONの `review_status` を変更していない。承認規約への文書上の照合と、正式goldの確定・採点実装は別工程である。
