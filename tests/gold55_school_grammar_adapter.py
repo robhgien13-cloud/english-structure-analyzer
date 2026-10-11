@@ -25,11 +25,11 @@ def adapt_main_clause(parsed):
         moved = [e for e in core["C"] if e.get("clause_ref")]
         core["C"] = [e for e in core["C"] if not e.get("clause_ref")]
         core["O"].extend(moved)
-    if re.match(r"^it (is|was) (important|difficult)\\b", text, re.I):
+    if re.match(r"^it (is|was) (important|difficult)\b", text, re.I):
         core["C"] = [e for e in core["C"] if not e.get("clause_ref")]
-    if re.match(r"^it seems that\\b", text, re.I):
+    if re.match(r"^it seems that\b", text, re.I):
         core["O"] = [e for e in core["O"] if not e.get("clause_ref")]
-    if re.match(r"^there was\\b", text, re.I):
+    if re.match(r"^there was\b", text, re.I):
         core["M"] = []
 
     def phrase(index):
