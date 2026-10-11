@@ -107,6 +107,27 @@ class EnglishStructureAnalyzer:
                 overrides[main_verb.i] = ('root', 0)
                 overrides[root.i] = ('nsubj', main_verb.i + 1)
 
+        # spaCy can misidentify the embedded verb as ROOT in a fronted
+        # fused-relative nominal subject: "What he said surprised everyone."
+        # Recover the finite matrix predicate when its object follows it.
+        if root is not None and tokens and tokens[0].text.lower() == 'what':
+            matrix_candidates = [
+                tok for tok in tokens
+                if tok.i > root.i and tok.dep_ in {'ccomp', 'conj', 'dobj', 'obj', 'relcl'}
+                and tok.pos_ == 'VERB'
+                and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
+                and any(c.dep_ in {'dobj', 'obj'} for c in tok.children)
+            ]
+            if len(matrix_candidates) == 1 and root.pos_ == 'VERB':
+                matrix = matrix_candidates[0]
+                overrides[matrix.i] = ('root', 0)
+                overrides[root.i] = ('csubj', matrix.i + 1)
+                # What belongs to the nominal subject clause, not to
+                # the matrix predicate's object list.
+                for tok in tokens:
+                    if tok.text.lower() == 'what' and tok.head is root:
+                        overrides[tok.i] = ('obj', root.i + 1)
+
         # spaCy occasionally labels an object-predicative adjective as
         # advmod (e.g. 'painted the door red'). Keep it distinct from adverbs.
         for tok in tokens:
