@@ -1,3 +1,26 @@
+const imageInput=document.getElementById("imageInput");
+const ocrButton=document.getElementById("ocrButton");
+const ocrStatus=document.getElementById("ocrStatus");
+const MAX_IMAGE_BYTES=12*1024*1024;
+ocrButton.addEventListener("click",async()=>{
+ const file=imageInput.files&&imageInput.files[0];
+ if(!file){ocrStatus.textContent="画像を選択してください。";return;}
+ if(!file.type.startsWith("image/")){ocrStatus.textContent="画像ファイルを選択してください。";return;}
+ if(file.size>MAX_IMAGE_BYTES){ocrStatus.textContent="画像は12MB以下にしてください。";return;}
+ if(!window.Tesseract){ocrStatus.textContent="文字認識ライブラリを読み込めませんでした。ネット接続を確認してください。";return;}
+ ocrButton.disabled=true;ocrStatus.textContent="画像を読み取っています。初回は少し時間がかかります。";
+ let worker;
+ try{
+  worker=await Tesseract.createWorker("eng",1,{logger:m=>{if(m.status==="recognizing text")ocrStatus.textContent="文字認識中 "+Math.round((m.progress||0)*100)+"%";}});
+  const data=await worker.recognize(file);
+  const extracted=(data.data.text||"").trim();
+  if(!extracted)throw new Error("英文を検出できませんでした。鮮明な画像で再試行してください。");
+  textarea.value=extracted;textarea.dispatchEvent(new Event("input"));
+  ocrStatus.textContent="読み取り完了。誤字や改行を確認・修正してから「英文を解析」を押してください。";
+ }catch(error){ocrStatus.textContent="読み取りに失敗しました："+error.message;}
+ finally{if(worker)await worker.terminate();ocrButton.disabled=false;}
+});
+textarea.addEventListener("input",()=>{parsedSentences=[];result.replaceChildren();chosen.hidden=true;status.textContent="英文を編集しました。解析を実行してください。";});
 const button=document.getElementById("analyzeButton");
 const textarea=document.getElementById("sentence");
 const status=document.getElementById("status");
