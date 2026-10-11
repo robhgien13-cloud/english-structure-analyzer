@@ -28,21 +28,27 @@ const chosen=document.getElementById("chosen");
 const chosenText=document.getElementById("chosenText");
 const REQUEST_TIMEOUT_MS=90000;
 let parsedSentences=[];
-textarea.addEventListener("input",()=>{parsedSentences=[];result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;status.textContent="英文を編集しました。解析を実行してください。";});
+let chosenIndices=new Set(),diagnosisQueue=[],diagnosisResults=[],queuePosition=0;
+textarea.addEventListener("input",()=>{parsedSentences=[];chosenIndices.clear();diagnosisQueue=[];diagnosisResults=[];result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;status.textContent="英文を編集しました。解析を実行してください。";});
 function sentenceText(s){return (s.text||s.original_text||((s.tokens||[]).map(t=>t.text).join(" "))).trim();}
 function showCandidates(){
-  result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;
+  result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;chosenIndices.clear();
   const mode=document.querySelector('input[name="selectionMode"]:checked').value;
   const candidates=parsedSentences.map((sentence,index)=>({sentence,index,text:sentenceText(sentence)})).filter(x=>x.text);
   if(mode==="auto") candidates.sort((a,b)=>Array.from(b.text).length-Array.from(a.text).length||a.index-b.index);
   const displayed=mode==="auto"?candidates.slice(0,5):candidates;
   status.textContent=parsedSentences.length+"文を解析しました。"+(mode==="auto"?"長い順に最大5文を表示しています。":"すべての文を原文順に表示しています。");
   displayed.forEach(({index,text})=>{
-    const choice=document.createElement("button");choice.type="button";choice.className="sentence-choice";
-    choice.textContent=(index+1)+". "+text;
-    choice.addEventListener("click",()=>{result.querySelectorAll(".sentence-choice").forEach(x=>x.classList.remove("selected"));choice.classList.add("selected");chosenText.textContent=text;chosen.hidden=false;diagnosis.hidden=true;});
+    const choice=document.createElement("button");choice.type="button";choice.className="sentence-choice";choice.textContent=(index+1)+". "+text;
+    choice.addEventListener("click",()=>{
+      if(chosenIndices.has(index))chosenIndices.delete(index);else chosenIndices.add(index);
+      choice.classList.toggle("selected",chosenIndices.has(index));
+      chosen.hidden=!chosenIndices.size;
+      chosenText.textContent=[...chosenIndices].sort((a,b)=>a-b).map(i=>sentenceText(parsedSentences[i])).join("\n");
+    });
     result.appendChild(choice);
   });
+  document.getElementById("selectionHint").textContent="診断したい文を複数選択できます。選択順ではなく原文順に診断します。";
 }
 document.querySelectorAll('input[name="selectionMode"]').forEach(r=>r.addEventListener("change",()=>{if(parsedSentences.length)showCandidates();}));
 button.addEventListener("click",async()=>{
@@ -79,9 +85,14 @@ function makeWordButtons(container,tokens,callback){
 }
 function paint(container,ids){container.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",ids.has(Number(b.dataset.index))));}
 const startDiagnosisButton=document.getElementById("startDiagnosis");
+function setCurrentSentence(){chosenText.textContent=sentenceText(parsedSentences[diagnosisQueue[queuePosition]]);document.getElementById("diagnosisProgress").textContent=(queuePosition+1)+" / "+diagnosisQueue.length+" 文目";}
+
 const beginRolesButton=document.getElementById("beginRoles");
 startDiagnosisButton.addEventListener("click",async()=>{
  if(startDiagnosisButton.disabled)return;
+ if(!diagnosisQueue.length){diagnosisQueue=[...chosenIndices].sort((a,b)=>a-b);diagnosisResults=[];queuePosition=0;}
+ if(!diagnosisQueue.length)return;
+ setCurrentSentence();
  diagnosis.hidden=false;rolesPanel.hidden=true;summary.hidden=true;diagnosisStatus.textContent="診断の準備中...";
  document.getElementById("diagnosisOriginal").textContent=chosenText.textContent;
  diagnosticData=null;unknown=new Set();answers=[];roleIndex=0;diagnosisWords.replaceChildren();unknownWords.textContent="";
@@ -128,15 +139,56 @@ document.getElementById("submitRole").addEventListener("click",()=>{
  const role="SVOC"[roleIndex];const expected=new Set(diagnosticData.roles[role].flatMap(e=>e.token_ids));
  const actual=new Set(pending);
  const correct=expected.size===actual.size&&[...expected].every(x=>actual.has(x));
- answers.push({role,correct,actual:diagnosticData.tokens.filter(t=>actual.has(t.index)).map(t=>t.text).join(" ")||"なし",expected:diagnosticData.roles[role].map(x=>x.text).join(" / ")||"なし"});
+ answers.push({role,correct,actualIds:[...actual],expectedIds:[...expected],actual:diagnosticData.tokens.filter(t=>actual.has(t.index)).map(t=>t.text).join(" ")||"なし",expected:diagnosticData.roles[role].map(x=>x.text).join(" / ")||"なし"});
  roleIndex++;renderRole();
 });
+function groupedRoles(tokens,answerSet){
+ const groups=[];let active=null;
+ for(const t of tokens){
+  const labels="SVOC".split("").filter(role=>answerSet[role]&&answerSet[role].has(t.index));
+  const label=labels.join("/");
+  if(active&&active.label===label&&active.last===t.index-1){active.text+=" "+t.text;active.last=t.index;}
+  else{active={text:t.text,label,last:t.index};groups.push(active);}
+ }
+ return groups;
+}
+function renderStructure(parent,tokens,answerSet){
+ const row=document.createElement("div");row.className="structure-row";
+ groupedRoles(tokens,answerSet).forEach(g=>{
+  const box=document.createElement("div");box.className="structure-box";
+  const word=document.createElement("strong");word.textContent=g.text;
+  const role=document.createElement("small");role.textContent=g.label||"—";
+  box.append(word,role);row.appendChild(box);
+ });parent.appendChild(row);
+}
+function renderReport(){
+ const report=document.getElementById("combinedReport");report.hidden=false;report.replaceChildren();
+ const heading=document.createElement("h2");heading.textContent="全文の診断結果（"+diagnosisResults.length+"文）";report.appendChild(heading);
+ for(const item of diagnosisResults){
+  const section=document.createElement("section");section.className="report-sentence";
+  const title=document.createElement("h3");title.textContent="第"+item.number+"文："+item.text;section.appendChild(title);
+  const student=document.createElement("p");student.textContent="生徒の回答";section.appendChild(student);
+  renderStructure(section,item.tokens,Object.fromEntries(item.answers.map(a=>[a.role,new Set(a.actualIds)])));
+  const engine=document.createElement("p");engine.textContent="解析上の候補（試験版）";section.appendChild(engine);
+  renderStructure(section,item.tokens,Object.fromEntries(item.answers.map(a=>[a.role,new Set(a.expectedIds)])));
+  const vocab=document.createElement("p");vocab.textContent="未知語："+(item.unknown.join("、")||"なし")+" ／ 一致："+item.answers.filter(a=>a.correct).length+"/4";section.appendChild(vocab);
+  report.appendChild(section);
+ }
+ const caution=document.createElement("p");caution.textContent="解析候補には誤りがあり得ます。不一致だけで生徒の理解不足と確定しません。";report.appendChild(caution);
+}
 function finishRoles(){
  rolesPanel.hidden=true;summary.hidden=false;summary.replaceChildren();
- const h=document.createElement("h3");h.textContent="仮診断結果";summary.appendChild(h);
- const p=document.createElement("p");p.textContent="一致："+answers.filter(a=>a.correct).length+" / 4（試験版・解析の曖昧性は未検証）";summary.appendChild(p);
- const original=document.createElement("p");original.textContent="診断した原文："+chosenText.textContent;summary.appendChild(original);
- const vocabulary=document.createElement("p");vocabulary.textContent="本人が登録した未知語："+(diagnosticData.tokens.filter(t=>unknown.has(t.index)).map(t=>t.text).join("、")||"なし");summary.appendChild(vocabulary);
- answers.forEach(a=>{const line=document.createElement("p");line.textContent=a.role+"："+(a.correct?"一致":"要確認")+" ／ 本人の回答："+a.actual+" ／ 解析上の候補："+a.expected;summary.appendChild(line);});
- const note=document.createElement("p");note.textContent="この結果だけで弱点は確定しません。追加問題による確認が必要です。";summary.appendChild(note);
+ diagnosisResults.push({number:diagnosisQueue[queuePosition]+1,text:chosenText.textContent,tokens:diagnosticData.tokens,answers:answers.map(a=>({...a})),unknown:diagnosticData.tokens.filter(t=>unknown.has(t.index)).map(t=>t.text)});
+ const h=document.createElement("h3");h.textContent="第"+(queuePosition+1)+"文の仮診断結果";summary.appendChild(h);
+ const p=document.createElement("p");p.textContent="一致："+answers.filter(a=>a.correct).length+"/4";summary.appendChild(p);
+ renderStructure(summary,diagnosticData.tokens,Object.fromEntries(answers.map(a=>[a.role,new Set(a.actualIds)])));
+ const next=document.createElement("button");next.type="button";
+ if(queuePosition+1<diagnosisQueue.length){
+  next.textContent="次の文を診断する";
+  next.addEventListener("click",()=>{queuePosition++;startDiagnosisButton.click();});
+ }else{
+  next.textContent="全文の診断結果を見る";
+  next.addEventListener("click",()=>{renderReport();document.getElementById("combinedReport").scrollIntoView({behavior:"smooth"});});
+ }
+ summary.appendChild(next);
 }
