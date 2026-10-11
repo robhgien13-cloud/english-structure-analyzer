@@ -68,6 +68,8 @@ def main():
         cid = f"G{i:03d}"
         try:
             outputs[cid] = parser.analyze(sentence)
+            if cid == "G051":
+                print("INVERSION TOKENS", [(t.get("index"),t.get("text"),t.get("upos"),t.get("deprel"),t.get("head")) for t in outputs[cid]["sentences"][0]["tokens"]], flush=True)
             roles = adapt_main_clause(outputs[cid])
             predictions[cid] = {role: [item.get('text', '') for item in roles[role]] for role in 'SVOCM'}
             print(cid, "OK", flush=True)
