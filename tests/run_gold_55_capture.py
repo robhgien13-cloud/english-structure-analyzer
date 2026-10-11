@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 from analyzer import EnglishStructureAnalyzer
+from gold55_school_grammar_adapter import adapt_main_clause
+from score_gold55_accuracy import score
 SENTENCES = [
   "She is happy.",
   "The tall boy runs fast.",
@@ -61,18 +63,25 @@ SENTENCES = [
 ]
 def main():
     parser = EnglishStructureAnalyzer()
-    outputs, errors = {}, {}
+    outputs, errors, predictions = {}, {}, {}
     for i, sentence in enumerate(SENTENCES, 1):
         cid = f"G{i:03d}"
         try:
             outputs[cid] = parser.analyze(sentence)
+            roles = adapt_main_clause(outputs[cid])
+            predictions[cid] = {role: [item.get('text', '') for item in roles[role]] for role in 'SVOCM'}
             print(cid, "OK", flush=True)
         except Exception as exc:
             errors[cid] = repr(exc)
             print(cid, "ERROR", repr(exc), flush=True)
     Path("artifacts").mkdir(exist_ok=True)
+    accuracy = score(predictions) if not errors else {"not_scored": True, "errors": errors}
+    print("GOLD55 ANNOTATED SCORE", accuracy.get("passed"), "/", accuracy.get("total"), flush=True)
+    for failure in accuracy.get("failed", []):
+        print("GOLD MISMATCH", failure["id"], failure["differences"], flush=True)
     Path("artifacts/g001-g055-actual.json").write_text(
-        json.dumps({"outputs":outputs,"errors":errors,"total":len(SENTENCES)},
+        json.dumps({"outputs":outputs,"errors":errors,"total":len(SENTENCES),
+                    "predictions":predictions,"gold_accuracy":accuracy},
                    ensure_ascii=False, indent=2), encoding="utf-8")
     print("TOTAL",len(SENTENCES),"SUCCESS",len(outputs),"ERRORS",len(errors),flush=True)
     if errors: raise SystemExit(1)
