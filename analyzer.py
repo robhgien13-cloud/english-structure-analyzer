@@ -93,8 +93,10 @@ class EnglishStructureAnalyzer:
         # In short relative-clause sentences spaCy may incorrectly choose the
         # subject noun as ROOT and label the finite main verb 'advmod'.
         # Only repair this narrow pattern when the noun has a relative clause.
-        if (root is not None and root.pos_ in {'NOUN', 'PROPN', 'PRON'}
-                and any(c.dep_ == 'relcl' for c in root.children)):
+        if (root is not None
+                and any(c.dep_ == 'relcl' for c in root.children)
+                and (root.pos_ in {'NOUN', 'PROPN', 'PRON'}
+                     or any(c.dep_ in {'det', 'poss'} for c in root.children))):
             relative_verbs = [c for c in root.children if c.dep_ == 'relcl']
             finite_verbs = [tok for tok in tokens
                             if tok.dep_ == 'advmod' and tok.pos_ in {'VERB', 'AUX'}
