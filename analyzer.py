@@ -232,6 +232,16 @@ class EnglishStructureAnalyzer:
 
         complements = self._complements(head, direct, children, ids)
         core['C'].extend(complements)
+        # Coordinated predicative adjectives share the same linking verb.
+        for comp in list(complements):
+            for coordinated in children.get(comp['head_token'], []):
+                if coordinated.deprel == 'conj' and coordinated.upos == 'ADJ':
+                    if not any(e['head_token'] == coordinated.id for e in core['C']):
+                        elem = self._element(coordinated, 'C', children, ids)
+                        elem['full_phrase'] = elem['text']
+                        elem['text'] = coordinated.text
+                        elem['token_ids'] = [coordinated.id]
+                        core['C'].append(elem)
         for comp in complements:
             comp['complement_of'] = 'O' if core['O'] and self._object_complement_verb(head.lemma) else 'S'
             target = core[comp['complement_of']][-1]['id'] if core[comp['complement_of']] else None
