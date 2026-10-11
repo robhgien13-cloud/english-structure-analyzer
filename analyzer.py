@@ -237,7 +237,10 @@ class EnglishStructureAnalyzer:
             if ch.id == head.id or ch.head != head.id: continue
             role = 'M' if ch.deprel == 'advcl' else ('S' if ch.deprel.startswith('csubj') else ('C' if ch.deprel == 'xcomp' else 'O'))
             ref = {'id':ids.make(role.lower()), 'role':role, 'text':self._span_text(ch, children), 'token_ids':sorted(self._subtree_ids(ch.id, children)), 'head_token':ch.id, 'clause_ref':clause_map[ch.id]}
-            core[role].append(ref)
+            # Adverbial clauses are represented as child clauses, not as
+            # selectable main-clause M spans in the approved gold convention.
+            if ch.deprel != 'advcl':
+                core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
 
         # Keep compatibility with UD-style copular input if encountered.
