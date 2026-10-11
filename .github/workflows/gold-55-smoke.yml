@@ -1,0 +1,27 @@
+name: Gold regression environment and special syntax smoke test
+on:
+  workflow_dispatch:
+  push:
+    branches: [test/gold-55-regression]
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parser dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install spacy
+          python -m spacy download en_core_web_sm
+      - name: Run parser on G051-G055 and store actual outputs
+        run: python tests/run_special_syntax_smoke.py
+      - name: Upload actual outputs for human-reviewed scoring
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: g051-g055-parser-output
+          path: artifacts/g051-g055-actual.json
+          if-no-files-found: warn
