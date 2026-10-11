@@ -210,6 +210,12 @@ class EnglishStructureAnalyzer:
                 core['O'].append(self._element(w, 'O', children, ids))
             elif w.deprel in MOD_RELS and w.deprel not in CLAUSE_RELS:
                 core['M'].append(self._element(w, 'M', children, ids))
+        # A nonfinite or nominal clause already selected as S should not also
+        # contribute its internal head as a separate main-clause subject.
+        if ctype == 'main' and core['S']:
+            clause_subject_ids = {w.id for w in direct if w.deprel in {'csubj', 'csubj:pass'}}
+            if clause_subject_ids:
+                core['S'] = [e for e in core['S'] if e['head_token'] not in clause_subject_ids]
         # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
