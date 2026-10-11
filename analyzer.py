@@ -284,7 +284,12 @@ class EnglishStructureAnalyzer:
             for w in direct:
                 if ((w.deprel in {'xcomp','obl','attr','acomp'} and w.upos in {'ADJ','NOUN','PROPN'})
                         or ((head.lemma or '').lower() == 'be' and w.deprel in {'attr','acomp','oprd'})):
-                    out.append(self._element(w,'C',children,ids))
+                    elem = self._element(w,'C',children,ids)
+                    if w.upos == 'ADJ':
+                        elem['full_phrase'] = elem['text']
+                        elem['text'] = w.text
+                        elem['token_ids'] = [w.id]
+                    out.append(elem)
         if self._object_complement_verb(head.lemma):
             for w in direct:
                 if ((w.deprel in {'xcomp','oprd'} and w.upos in {'ADJ','NOUN','PROPN'})
