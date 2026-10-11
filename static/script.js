@@ -78,17 +78,28 @@ function makeWordButtons(container,tokens,callback){
  });
 }
 function paint(container,ids){container.querySelectorAll("button").forEach(b=>b.classList.toggle("selected",ids.has(Number(b.dataset.index))));}
-document.getElementById("startDiagnosis").addEventListener("click",async()=>{
+const startDiagnosisButton=document.getElementById("startDiagnosis");
+const beginRolesButton=document.getElementById("beginRoles");
+startDiagnosisButton.addEventListener("click",async()=>{
+ if(startDiagnosisButton.disabled)return;
  diagnosis.hidden=false;rolesPanel.hidden=true;summary.hidden=true;diagnosisStatus.textContent="診断の準備中...";
  document.getElementById("diagnosisOriginal").textContent=chosenText.textContent;
  diagnosticData=null;unknown=new Set();answers=[];roleIndex=0;diagnosisWords.replaceChildren();unknownWords.textContent="";
+ startDiagnosisButton.disabled=true;beginRolesButton.disabled=true;
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),30000);
  try{
-  const res=await fetch("/api/diagnose/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:chosenText.textContent})});
-  const data=await res.json();if(!res.ok)throw new Error(data.error||"準備できませんでした。");
+  const res=await fetch("/api/diagnose/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:chosenText.textContent}),signal:controller.signal});
+  const raw=await res.text();
+  let data;try{data=JSON.parse(raw);}catch{throw new Error("診断準備の応答を読み取れませんでした（HTTP "+res.status+"）。");}
+  if(!res.ok)throw new Error(data.error||"準備できませんでした（HTTP "+res.status+"）。");
+  if(!Array.isArray(data.tokens)||!data.roles)throw new Error("診断データの形式が正しくありません。");
   diagnosticData=data;
   makeWordButtons(diagnosisWords,data.tokens,id=>{if(unknown.has(id))unknown.delete(id);else unknown.add(id);paint(diagnosisWords,unknown);unknownWords.textContent="未知語："+(data.tokens.filter(t=>unknown.has(t.index)).map(t=>t.text).join("、")||"なし");});
   unknownWords.textContent="未知語：なし";diagnosisStatus.textContent="分からない単語を選んでください。";
- }catch(e){diagnosisStatus.textContent=e.message;}
+  beginRolesButton.disabled=false;
+ }catch(e){diagnosisStatus.textContent=e.name==="AbortError"?"診断の準備が30秒以内に完了しませんでした。再度お試しください。":"診断の準備に失敗しました："+e.message;}
+ finally{clearTimeout(timeout);startDiagnosisButton.disabled=false;}
 });
 document.getElementById("beginRoles").addEventListener("click",()=>{
  if(!diagnosticData){diagnosisStatus.textContent="まず診断を準備してください。";return;}
