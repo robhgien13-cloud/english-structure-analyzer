@@ -246,6 +246,23 @@ class EnglishStructureAnalyzer:
                 core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
 
+        # In existential there constructions, the postverbal noun phrase is
+        # the semantic subject, not a predicative complement.
+        if ctype == 'main' and 'existential_there' in tags and (head.lemma or '').lower() == 'be':
+            existential_subjects = [e for e in core['C'] if e['head_token'] in {
+                w.id for w in direct if w.deprel in {'attr', 'acomp', 'oprd'}
+            }]
+            for elem in existential_subjects:
+                core['C'].remove(elem)
+                elem['role'] = 'S'
+                core['S'].append(elem)
+            for subj in core['S']:
+                for child in children.get(subj['head_token'], []):
+                    if child.deprel == 'obl':
+                        mod = self._element(child, 'M', children, ids)
+                        if not any(x['head_token'] == child.id for x in core['M']):
+                            core['M'].append(mod)
+
         # Keep compatibility with UD-style copular input if encountered.
         copulas = [w for w in direct if w.deprel == 'cop']
         if copulas:
