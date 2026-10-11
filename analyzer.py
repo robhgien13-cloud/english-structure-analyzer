@@ -230,6 +230,19 @@ class EnglishStructureAnalyzer:
         verb_words = sorted({w.id:w for w in verb_words}.values(), key=lambda w:w.id)
         core['V'].append({'id': ids.make('v'), 'role':'V', 'text':' '.join(w.text for w in verb_words), 'token_ids':[w.id for w in verb_words], 'head_token':head.id})
 
+        # Coordinated lexical verbs share a subject but retain their own
+        # verb and object spans (e.g. opened the door and entered the room).
+        if ctype == 'main':
+            for coordinated in direct:
+                if coordinated.deprel == 'conj' and coordinated.upos == 'VERB':
+                    core['V'].append({
+                        'id': ids.make('v'), 'role': 'V', 'text': coordinated.text,
+                        'token_ids': [coordinated.id], 'head_token': coordinated.id
+                    })
+                    for obj in children.get(coordinated.id, []):
+                        if obj.deprel in OBJECT_RELS:
+                            core['O'].append(self._element(obj, 'O', children, ids))
+
         complements = self._complements(head, direct, children, ids)
         core['C'].extend(complements)
         # Coordinated predicative adjectives share the same linking verb.
