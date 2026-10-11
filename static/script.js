@@ -20,7 +20,6 @@ ocrButton.addEventListener("click",async()=>{
  }catch(error){ocrStatus.textContent="読み取りに失敗しました："+error.message;}
  finally{if(worker)await worker.terminate();ocrButton.disabled=false;}
 });
-textarea.addEventListener("input",()=>{parsedSentences=[];result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;status.textContent="英文を編集しました。解析を実行してください。";});
 const button=document.getElementById("analyzeButton");
 const textarea=document.getElementById("sentence");
 const status=document.getElementById("status");
@@ -29,6 +28,7 @@ const chosen=document.getElementById("chosen");
 const chosenText=document.getElementById("chosenText");
 const REQUEST_TIMEOUT_MS=90000;
 let parsedSentences=[];
+textarea.addEventListener("input",()=>{parsedSentences=[];result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;status.textContent="英文を編集しました。解析を実行してください。";});
 function sentenceText(s){return (s.text||s.original_text||((s.tokens||[]).map(t=>t.text).join(" "))).trim();}
 function showCandidates(){
   result.replaceChildren();chosen.hidden=true;diagnosis.hidden=true;
