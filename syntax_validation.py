@@ -47,6 +47,7 @@ def detect_syntax_cues(doc: Any) -> list[dict]:
     ]])
     matcher.add("NO_SOONER_THAN", [[
         {"LOWER": "no"}, {"LOWER": "sooner"},
+        {"LOWER": {"IN": ["had", "has", "have", "did", "does", "do"]}},
         {"OP": "*"}, {"LOWER": "than"},
     ]])
     matcher.add("NOT_UNTIL_INVERSION", [[
