@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from analyzer import EnglishStructureAnalyzer
+from gold55_school_grammar_adapter import adapt_main_clause
 
 GOLD = ROOT / "tests" / "data" / "gold55_sentences.json"
 
@@ -25,7 +26,10 @@ def main():
             result = analyzer.analyze(case["sentence"])
             if not isinstance(result, dict) or not result:
                 raise ValueError("Empty or non-object analyzer output")
-            print(f'{case["id"]}: parsed')
+            roles = adapt_main_clause(result)
+            if set(roles) != set("SVOCM") or not all(isinstance(roles[r], list) for r in "SVOCM"):
+                raise ValueError("Adapter returned invalid S/V/O/C/M shape")
+            print(f'{case["id"]}: parsed and adapted')
         except Exception as exc:
             failures.append({"id": case["id"], "error": str(exc)})
             print(f'{case["id"]}: ERROR {exc}')
