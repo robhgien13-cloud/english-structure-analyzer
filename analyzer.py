@@ -396,6 +396,43 @@ class EnglishStructureAnalyzer:
         clauses = []
         for head in clause_heads:
             clauses.append(self._clause(head, root, by_id, children, clause_heads, clause_map, ids, relations, tags, warnings))
+        # Preserve coordinated predicate/complement members as an additive
+        # diagnostic field. Do not change the established main SVOC fields.
+        coordination_groups = []
+        for word in words:
+            if word.deprel != 'conj' or word.head not in by_id:
+                continue
+            parent = by_id[word.head]
+            conjunction = next((c.text.lower() for c in children.get(parent.id, []) + children.get(word.id, [])
+                                if c.deprel == 'cc'), None)
+            if word.upos == 'VERB' and parent.upos == 'VERB':
+                subject = next((c for c in children.get(parent.id, []) if c.deprel in SUBJECT_RELS), None)
+                if subject is None:
+                    continue
+                def objects(verb):
+                    return [self._phrase_text(c, children) for c in children.get(verb.id, [])
+                            if c.deprel in OBJECT_RELS]
+                coordination_groups.append({
+                    'kind': 'predicate', 'conjunction': conjunction,
+                    'shared': {'S': self._phrase_text(subject, children)},
+                    'members': [
+                        {'V': parent.text, 'O': objects(parent)},
+                        {'V': word.text, 'O': objects(word)}],
+                    'head_tokens': [parent.id, word.id]})
+            elif word.upos == 'ADJ' and parent.upos == 'ADJ' and parent.deprel in {'acomp', 'attr'}:
+                matrix = by_id.get(parent.head)
+                if matrix is None:
+                    continue
+                subject = next((c for c in children.get(matrix.id, []) if c.deprel in SUBJECT_RELS), None)
+                if subject is None:
+                    continue
+                modifiers = [self._phrase_text(c, children) for c in children.get(word.id, [])
+                             if c.deprel == 'advmod']
+                coordination_groups.append({
+                    'kind': 'complement', 'conjunction': conjunction,
+                    'shared': {'S': self._phrase_text(subject, children), 'V': matrix.text},
+                    'members': [{'C': parent.text}, {'C': word.text, 'M': modifiers}],
+                    'head_tokens': [parent.id, word.id]})
         self._global_relations(words, children, ids, relations, tags)
         tokens = [{
             'id': ids.make('tok'), 'index': w.id, 'text': w.text, 'lemma': w.lemma,
@@ -404,7 +441,8 @@ class EnglishStructureAnalyzer:
         return {
             'id': f'SENT-{idx:03d}', 'text': sent.text, 'tokens': tokens,
             'root_token': root.id, 'clauses': clauses, 'relations': relations,
-            'tags': sorted(tags), 'warnings': sorted(set(warnings))
+            'tags': sorted(tags), 'warnings': sorted(set(warnings)),
+            'coordination_groups': coordination_groups
         }
 
     def _clause(self, head, sentence_root, by_id, children, clause_heads, clause_map, ids, relations, tags, warnings):
