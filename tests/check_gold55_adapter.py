@@ -27,7 +27,8 @@ for case in cases:
         print(f'{case["id"]}: adapter ran')
     except Exception as e:
         errors.append({"id": case["id"], "error": str(e)})
-print(json.dumps({"total":len(cases),"errors":errors,
-                  "gold_accuracy":"NOT MEASURED"},ensure_ascii=False))
+report = {"total":len(cases),"errors":errors,"gold_accuracy":"NOT MEASURED"}
+(ROOT / "gold55-adapter-report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
+print(json.dumps(report,ensure_ascii=False))
 if errors:
     raise SystemExit(1)
