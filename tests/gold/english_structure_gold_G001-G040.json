@@ -1,0 +1,1360 @@
+{
+  "schema_version": "1.0",
+  "dataset_name": "english_structure_analyzer_approved_gold_G001_G040",
+  "approval": "40 of 40 cases approved in conversation",
+  "scoring_convention": {
+    "S_V_O_C_M": "arrays of exact contiguous text spans; multiple spans allowed",
+    "core_vs_full_phrase": "C selects the approved core; C_full_phrase stores full complement when applicable",
+    "subordinate_elements": "recorded separately from main-clause elements",
+    "empty_arrays": "no explicitly selected span",
+    "token_offsets": "not included; matching requires span resolution"
+  },
+  "cases": [
+    {
+      "id": "G001",
+      "status": "user_approved",
+      "sentence": "She is happy.",
+      "main_clause": {
+        "S": [
+          "She"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "happy"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G002",
+      "status": "user_approved",
+      "sentence": "The tall boy runs fast.",
+      "main_clause": {
+        "S": [
+          "The tall boy"
+        ],
+        "V": [
+          "runs"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "fast"
+        ],
+        "pattern": "SV"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G003",
+      "status": "user_approved",
+      "sentence": "I read a book.",
+      "main_clause": {
+        "S": [
+          "I"
+        ],
+        "V": [
+          "read"
+        ],
+        "O": [
+          "a book"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G004",
+      "status": "user_approved",
+      "sentence": "She gave me a book.",
+      "main_clause": {
+        "S": [
+          "She"
+        ],
+        "V": [
+          "gave"
+        ],
+        "O": [
+          "me",
+          "a book"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVOO"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G005",
+      "status": "user_approved",
+      "sentence": "I found the book useful.",
+      "main_clause": {
+        "S": [
+          "I"
+        ],
+        "V": [
+          "found"
+        ],
+        "O": [
+          "the book"
+        ],
+        "C": [
+          "useful"
+        ],
+        "M": [],
+        "pattern": "SVOC"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G006",
+      "status": "user_approved",
+      "sentence": "The dog barked loudly.",
+      "main_clause": {
+        "S": [
+          "The dog"
+        ],
+        "V": [
+          "barked"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "loudly"
+        ],
+        "pattern": "SV"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G007",
+      "status": "user_approved",
+      "sentence": "My father is a doctor.",
+      "main_clause": {
+        "S": [
+          "My father"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "a doctor"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G008",
+      "status": "user_approved",
+      "sentence": "We watched the movie.",
+      "main_clause": {
+        "S": [
+          "We"
+        ],
+        "V": [
+          "watched"
+        ],
+        "O": [
+          "the movie"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G009",
+      "status": "user_approved",
+      "sentence": "They elected him president.",
+      "main_clause": {
+        "S": [
+          "They"
+        ],
+        "V": [
+          "elected"
+        ],
+        "O": [
+          "him"
+        ],
+        "C": [
+          "president"
+        ],
+        "M": [],
+        "pattern": "SVOC"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G010",
+      "status": "user_approved",
+      "sentence": "The teacher showed us a picture.",
+      "main_clause": {
+        "S": [
+          "The teacher"
+        ],
+        "V": [
+          "showed"
+        ],
+        "O": [
+          "us",
+          "a picture"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVOO"
+      },
+      "subordinate_clauses": [],
+      "phrases": []
+    },
+    {
+      "id": "G011",
+      "status": "user_approved",
+      "sentence": "The man who smiled left.",
+      "main_clause": {
+        "S": [
+          "The man"
+        ],
+        "V": [
+          "left"
+        ],
+        "O": [],
+        "C": [],
+        "M": [],
+        "pattern": "SV",
+        "subject_excludes_postmodifiers": true
+      },
+      "subordinate_clauses": [
+        {
+          "type": "relative",
+          "text": "who smiled",
+          "S": [
+            "who"
+          ],
+          "V": [
+            "smiled"
+          ],
+          "O": [],
+          "C": [],
+          "M": [],
+          "modifies": "man"
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G012",
+      "status": "user_approved",
+      "sentence": "The boy who lives here runs fast.",
+      "main_clause": {
+        "S": [
+          "The boy"
+        ],
+        "V": [
+          "runs"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "fast"
+        ],
+        "pattern": "SV",
+        "subject_excludes_postmodifiers": true
+      },
+      "subordinate_clauses": [
+        {
+          "type": "relative",
+          "text": "who lives here",
+          "S": [
+            "who"
+          ],
+          "V": [
+            "lives"
+          ],
+          "O": [],
+          "C": [],
+          "M": [
+            "here"
+          ],
+          "modifies": "boy"
+        }
+      ],      "phrases": []
+    },
+    {
+      "id": "G013",
+      "status": "user_approved",
+      "sentence": "The book that I bought yesterday was expensive.",
+      "main_clause": {
+        "S": [
+          "The book"
+        ],
+        "V": [
+          "was"
+        ],
+        "O": [],
+        "C": [
+          "expensive"
+        ],
+        "M": [],
+        "pattern": "SVC",
+        "subject_excludes_postmodifiers": true
+      },
+      "subordinate_clauses": [
+        {
+          "type": "relative",
+          "text": "that I bought yesterday",
+          "S": [
+            "I"
+          ],
+          "V": [
+            "bought"
+          ],
+          "O": [
+            "that"
+          ],
+          "C": [],
+          "M": [
+            "yesterday"
+          ],
+          "modifies": "book"
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G014",
+      "status": "user_approved",
+      "sentence": "The woman whom we met yesterday is a scientist.",
+      "main_clause": {
+        "S": [
+          "The woman"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "a scientist"
+        ],
+        "M": [],
+        "pattern": "SVC",
+        "subject_excludes_postmodifiers": true
+      },
+      "subordinate_clauses": [
+        {
+          "type": "relative",
+          "text": "whom we met yesterday",
+          "S": [
+            "we"
+          ],
+          "V": [
+            "met"
+          ],
+          "O": [
+            "whom"
+          ],
+          "C": [],
+          "M": [
+            "yesterday"
+          ],
+          "modifies": "woman"
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G015",
+      "status": "user_approved",
+      "sentence": "The house where I grew up has disappeared.",
+      "main_clause": {
+        "S": [
+          "The house"
+        ],
+        "V": [
+          "has disappeared"
+        ],
+        "O": [],
+        "C": [],
+        "M": [],
+        "pattern": "SV",
+        "subject_excludes_postmodifiers": true
+      },
+      "subordinate_clauses": [
+        {
+          "type": "relative",
+          "text": "where I grew up",
+          "S": [
+            "I"
+          ],
+          "V": [
+            "grew up"
+          ],
+          "O": [],
+          "C": [],
+          "M": [],
+          "modifies": "house"
+        }
+      ],
+      "phrases": [],
+      "notes": "where is a relative adverb; grew up is treated as the clause V under the approved convention."
+    },
+    {
+      "id": "G016",
+      "status": "user_approved",
+      "sentence": "When I arrived home, my mother was cooking dinner.",
+      "main_clause": {
+        "S": [
+          "my mother"
+        ],
+        "V": [
+          "was cooking"
+        ],
+        "O": [
+          "dinner"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "adverbial",
+          "text": "When I arrived home",
+          "S": [
+            "I"
+          ],
+          "V": [
+            "arrived"
+          ],
+          "O": [],
+          "C": [],
+          "M": [
+            "home"
+          ]
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G017",
+      "status": "user_approved",
+      "sentence": "Because it was raining, we stayed inside.",
+      "main_clause": {
+        "S": [
+          "we"
+        ],
+        "V": [
+          "stayed"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "inside"
+        ],
+        "pattern": "SV"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "adverbial",
+          "text": "Because it was raining",
+          "S": [
+            "it"
+          ],
+          "V": [
+            "was raining"
+          ],
+          "O": [],
+          "C": [],
+          "M": []
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G018",
+      "status": "user_approved",
+      "sentence": "If you study hard, you will improve.",
+      "main_clause": {
+        "S": [
+          "you"
+        ],
+        "V": [
+          "will improve"
+        ],
+        "O": [],
+        "C": [],
+        "M": [],
+        "pattern": "SV"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "adverbial",
+          "text": "If you study hard",
+          "S": [
+            "you"
+          ],
+          "V": [
+            "study"
+          ],
+          "O": [],
+          "C": [],
+          "M": [
+            "hard"
+          ]
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G019",
+      "status": "user_approved",
+      "sentence": "Although he was tired, he continued working.",
+      "main_clause": {
+        "S": [
+          "he"
+        ],
+        "V": [
+          "continued"
+        ],
+        "O": [
+          "working"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "adverbial",
+          "text": "Although he was tired",
+          "S": [
+            "he"
+          ],
+          "V": [
+            "was"
+          ],
+          "O": [],
+          "C": [
+            "tired"
+          ],
+          "M": []
+        }
+      ],
+      "phrases": [
+        {
+          "text": "working",
+          "kind": "gerund",
+          "role": "main_object",
+          "internal": {
+            "V": [
+              "working"
+            ],
+            "O": [],
+            "C": [],
+            "M": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "G020",
+      "status": "user_approved",
+      "sentence": "I will call you after I finish my homework.",
+      "main_clause": {
+        "S": [
+          "I"
+        ],
+        "V": [
+          "will call"
+        ],
+        "O": [
+          "you"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "adverbial",
+          "text": "after I finish my homework",          "S": [
+            "I"
+          ],
+          "V": [
+            "finish"
+          ],
+          "O": [
+            "my homework"
+          ],
+          "C": [],
+          "M": []
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G021",
+      "status": "user_approved",
+      "sentence": "I think that she is right.",
+      "main_clause": {
+        "S": [
+          "I"
+        ],
+        "V": [
+          "think"
+        ],
+        "O": [
+          "that she is right"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "nominal",
+          "text": "that she is right",
+          "S": [
+            "she"
+          ],
+          "V": [
+            "is"
+          ],
+          "O": [],
+          "C": [
+            "right"
+          ],
+          "M": []
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G022",
+      "status": "user_approved",
+      "sentence": "What he said surprised everyone.",
+      "main_clause": {
+        "S": [
+          "What he said"
+        ],
+        "V": [
+          "surprised"
+        ],
+        "O": [
+          "everyone"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "nominal",
+          "text": "What he said",
+          "S": [
+            "he"
+          ],
+          "V": [
+            "said"
+          ],
+          "O": [
+            "What"
+          ],
+          "C": [],
+          "M": []
+        }
+      ],
+      "phrases": [],
+      "notes": "What is the internal object of said and part of the full nominal-clause subject."
+    },
+    {
+      "id": "G023",
+      "status": "user_approved",
+      "sentence": "I know where she lives.",
+      "main_clause": {
+        "S": [
+          "I"
+        ],
+        "V": [
+          "know"
+        ],
+        "O": [
+          "where she lives"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "nominal",
+          "text": "where she lives",
+          "S": [
+            "she"
+          ],
+          "V": [
+            "lives"
+          ],
+          "O": [],
+          "C": [],
+          "M": []
+        }
+      ],
+      "phrases": [],
+      "notes": "where is an interrogative adverb, not an object inside the subordinate clause."
+    },
+    {
+      "id": "G024",
+      "status": "user_approved",
+      "sentence": "That he passed the exam is surprising.",
+      "main_clause": {
+        "S": [
+          "That he passed the exam"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "surprising"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "nominal",
+          "text": "That he passed the exam",
+          "S": [
+            "he"
+          ],
+          "V": [
+            "passed"
+          ],
+          "O": [
+            "the exam"
+          ],
+          "C": [],
+          "M": []
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G025",
+      "status": "user_approved",
+      "sentence": "She asked whether I was ready.",
+      "main_clause": {
+        "S": [
+          "She"
+        ],
+        "V": [
+          "asked"
+        ],
+        "O": [
+          "whether I was ready"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "nominal",
+          "text": "whether I was ready",
+          "S": [
+            "I"
+          ],
+          "V": [
+            "was"
+          ],
+          "O": [],
+          "C": [
+            "ready"
+          ],
+          "M": []
+        }
+      ],
+      "phrases": []
+    },
+    {
+      "id": "G026",
+      "status": "user_approved",
+      "sentence": "There are many books on the desk.",
+      "main_clause": {
+        "S": [
+          "many books"
+        ],
+        "V": [
+          "are"
+        ],
+        "O": [],
+        "C": [],
+        "M": [
+          "on the desk"
+        ],
+        "pattern": "SV"
+      },
+      "subordinate_clauses": [],
+      "phrases": [],
+      "existential_there": true,
+      "notes": "Existential there is not the subject; the subject is many books."
+    },
+    {
+      "id": "G027",
+      "status": "user_approved",
+      "sentence": "There was a problem with the plan.",
+      "main_clause": {
+        "S": [
+          "a problem"
+        ],
+        "V": [
+          "was"
+        ],
+        "O": [],
+        "C": [],
+        "M": [],
+        "pattern": "SV"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "with the plan",
+          "kind": "prepositional",
+          "role": "postmodifier_of_problem",
+          "excluded_from_main_S": true
+        }
+      ],
+      "existential_there": true,
+      "notes": "Existential there is not S; with the plan is a postmodifier excluded from S."
+    },
+    {
+      "id": "G028",
+      "status": "user_approved",
+      "sentence": "It is important to learn English.",
+      "main_clause": {
+        "S": [
+          "It"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "important"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "to learn English",
+          "kind": "infinitive",
+          "role": "notional_subject",
+          "internal": {
+            "V": [
+              "learn"
+            ],
+            "O": [
+              "English"
+            ],
+            "C": [],
+            "M": []
+          }
+        }
+      ],
+      "formal_subject": "It",
+      "notes": "It is the formal subject; to learn English is the notional subject."
+    },
+    {
+      "id": "G029",
+      "status": "user_approved",
+      "sentence": "It seems that he is honest.",
+      "main_clause": {
+        "S": [
+          "It"
+        ],
+        "V": [
+          "seems"        ],
+        "O": [],
+        "C": [],
+        "M": [],
+        "pattern": "SV"
+      },
+      "subordinate_clauses": [
+        {
+          "type": "content",
+          "text": "that he is honest",
+          "S": [
+            "he"
+          ],
+          "V": [
+            "is"
+          ],
+          "O": [],
+          "C": [
+            "honest"
+          ],
+          "M": []
+        }
+      ],
+      "phrases": [],
+      "formal_subject": "It",
+      "notes": "that he is honest is a content clause, not scored as main O or C."
+    },
+    {
+      "id": "G030",
+      "status": "user_approved",
+      "sentence": "It was difficult for me to answer.",
+      "main_clause": {
+        "S": [
+          "It"
+        ],
+        "V": [
+          "was"
+        ],
+        "O": [],
+        "C": [
+          "difficult"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "for me to answer",
+          "kind": "infinitive",
+          "role": "notional_subject",
+          "semantic_subject": "me",
+          "internal": {
+            "V": [
+              "answer"
+            ],
+            "O": [],
+            "C": [],
+            "M": []
+          }
+        }
+      ],
+      "formal_subject": "It",
+      "notes": "It is the formal subject; for me to answer is the notional subject."
+    },
+    {
+      "id": "G031",
+      "status": "user_approved",
+      "sentence": "She wants to become a doctor.",
+      "main_clause": {
+        "S": [
+          "She"
+        ],
+        "V": [
+          "wants"
+        ],
+        "O": [
+          "to become a doctor"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "to become a doctor",
+          "kind": "infinitive",
+          "role": "main_object",
+          "semantic_subject": "She",
+          "internal": {
+            "V": [
+              "become"
+            ],
+            "O": [],
+            "C": [
+              "a doctor"
+            ],
+            "M": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "G032",
+      "status": "user_approved",
+      "sentence": "To read books is enjoyable.",
+      "main_clause": {
+        "S": [
+          "To read books"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "enjoyable"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "To read books",
+          "kind": "infinitive",
+          "role": "main_subject",
+          "internal": {
+            "V": [
+              "read"
+            ],
+            "O": [
+              "books"
+            ],
+            "C": [],
+            "M": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "G033",
+      "status": "user_approved",
+      "sentence": "He decided to leave early.",
+      "main_clause": {
+        "S": [
+          "He"
+        ],
+        "V": [
+          "decided"
+        ],
+        "O": [
+          "to leave early"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "to leave early",
+          "kind": "infinitive",
+          "role": "main_object",
+          "internal": {
+            "V": [
+              "leave"
+            ],
+            "O": [],
+            "C": [],
+            "M": [
+              "early"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "G034",
+      "status": "user_approved",
+      "sentence": "I enjoy playing tennis.",
+      "main_clause": {
+        "S": [
+          "I"
+        ],
+        "V": [
+          "enjoy"
+        ],
+        "O": [
+          "playing tennis"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "playing tennis",
+          "kind": "gerund",
+          "role": "main_object",
+          "internal": {
+            "V": [
+              "playing"
+            ],
+            "O": [
+              "tennis"
+            ],
+            "C": [],
+            "M": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "G035",
+      "status": "user_approved",
+      "sentence": "Swimming in the sea is fun.",
+      "main_clause": {
+        "S": [
+          "Swimming in the sea"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "fun"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "Swimming in the sea",
+          "kind": "gerund",
+          "role": "main_subject",
+          "internal": {
+            "V": [
+              "Swimming"
+            ],
+            "O": [],
+            "C": [],
+            "M": [
+              "in the sea"
+            ]
+          }
+        }
+      ],
+      "notes": "Entire gerund phrase including in the sea is selected as main S."
+    },
+    {
+      "id": "G036",
+      "status": "user_approved",
+      "sentence": "The girl sitting by the window is my sister.",
+      "main_clause": {
+        "S": [
+          "The girl"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "my sister"
+        ],
+        "M": [],
+        "pattern": "SVC",
+        "subject_excludes_postmodifiers": true
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "sitting by the window",
+          "kind": "present_participle",
+          "role": "postmodifier_of_girl",
+          "excluded_from_main_S": true,
+          "internal": {
+            "V": [
+              "sitting"
+            ],
+            "O": [],
+            "C": [],
+            "M": [
+              "by the window"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "G037",
+      "status": "user_approved",
+      "sentence": "The letter written in English was difficult.",
+      "main_clause": {
+        "S": [
+          "The letter"
+        ],
+        "V": [          "was"
+        ],
+        "O": [],
+        "C": [
+          "difficult"
+        ],
+        "M": [],
+        "pattern": "SVC",
+        "subject_excludes_postmodifiers": true
+      },
+      "subordinate_clauses": [],
+      "phrases": [
+        {
+          "text": "written in English",
+          "kind": "past_participle",
+          "role": "postmodifier_of_letter",
+          "excluded_from_main_S": true,
+          "voice": "passive",
+          "internal": {
+            "V": [
+              "written"
+            ],
+            "O": [],
+            "C": [],
+            "M": [
+              "in English"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "G038",
+      "status": "user_approved",
+      "sentence": "She opened the door and entered the room.",
+      "main_clause": {
+        "S": [
+          "She"
+        ],
+        "V": [
+          "opened",
+          "entered"
+        ],
+        "O": [
+          "the door",
+          "the room"
+        ],
+        "C": [],
+        "M": [],
+        "pattern": "SVO+SVO"
+      },
+      "subordinate_clauses": [],
+      "phrases": [],
+      "coordination": {
+        "conjunction": "and",
+        "shared_subject": "She",
+        "predicates": [
+          {
+            "V": "opened",
+            "O": "the door"
+          },
+          {
+            "V": "entered",
+            "O": "the room"
+          }
+        ]
+      },
+      "notes": "Two V spans and two O spans are selected separately, linked by and. The subject She is shared."
+    },
+    {
+      "id": "G039",
+      "status": "user_approved",
+      "sentence": "He is smart but sometimes careless.",
+      "main_clause": {
+        "S": [
+          "He"
+        ],
+        "V": [
+          "is"
+        ],
+        "O": [],
+        "C": [
+          "smart",
+          "careless"
+        ],
+        "M": [],
+        "pattern": "SVC"
+      },
+      "subordinate_clauses": [],
+      "phrases": [],
+      "coordination": {
+        "conjunction": "but",
+        "shared_verb": "is",
+        "complements": [
+          "smart",
+          "careless"
+        ],
+        "modifier_of_second_complement": "sometimes"
+      },
+      "notes": "Two C spans smart and careless are selected separately; sometimes is excluded."
+    },
+    {
+      "id": "G040",
+      "status": "user_approved",
+      "sentence": "The book that my teacher recommended yesterday was surprisingly difficult to understand.",
+      "main_clause": {
+        "S": [
+          "The book"
+        ],
+        "V": [
+          "was"
+        ],
+        "O": [],
+        "C": [
+          "difficult"
+        ],
+        "M": [],
+        "pattern": "SVC",
+        "subject_excludes_postmodifiers": true,
+        "C_full_phrase": [
+          "surprisingly difficult to understand"
+        ]
+      },
+      "subordinate_clauses": [
+        {
+          "type": "relative",
+          "text": "that my teacher recommended yesterday",
+          "S": [
+            "my teacher"
+          ],
+          "V": [
+            "recommended"
+          ],
+          "O": [
+            "that"
+          ],
+          "C": [],
+          "M": [
+            "yesterday"
+          ],
+          "modifies": "book"
+        }
+      ],
+      "phrases": [
+        {
+          "text": "surprisingly difficult to understand",
+          "kind": "adjective_phrase",
+          "role": "main_complement_full_phrase",
+          "core": "difficult",
+          "modifier": "surprisingly",
+          "infinitive": "to understand",
+          "infinitive_internal": {
+            "V": [
+              "understand"
+            ],
+            "O": [],
+            "implicit_object": "the book"
+          }
+        }
+      ],
+      "notes": "Select only difficult as C; retain surprisingly difficult to understand as full complement phrase."
+    }
+  ]
+}
