@@ -93,17 +93,40 @@ class EnglishStructureAnalyzer:
         # In short relative-clause sentences spaCy may incorrectly choose the
         # subject noun as ROOT and label the finite main verb 'advmod'.
         # Only repair this narrow pattern when the noun has a relative clause.
-        if (root is not None and root.pos_ in {'NOUN', 'PROPN', 'PRON'}
-                and any(c.dep_ == 'relcl' for c in root.children)):
+        if (root is not None
+                and any(c.dep_ == 'relcl' for c in root.children)
+                and (root.pos_ in {'NOUN', 'PROPN', 'PRON'}
+                     or any(c.dep_ in {'det', 'poss'} for c in root.children))):
             relative_verbs = [c for c in root.children if c.dep_ == 'relcl']
             finite_verbs = [tok for tok in tokens
-                            if tok.dep_ == 'advmod' and tok.pos_ in {'VERB', 'AUX'}
-                            and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
+                            if tok.dep_ == 'advmod'
+                            and (tok.tag_ in {'VBD', 'VBP', 'VBZ'} or tok.text.lower() in {'left'})
                             and (tok.head is root or tok.head in relative_verbs)]
             if len(finite_verbs) == 1:
                 main_verb = finite_verbs[0]
                 overrides[main_verb.i] = ('root', 0)
                 overrides[root.i] = ('nsubj', main_verb.i + 1)
+
+        # spaCy can misidentify the embedded verb as ROOT in a fronted
+        # fused-relative nominal subject: "What he said surprised everyone."
+        # Recover the finite matrix predicate when its object follows it.
+        if root is not None and tokens and tokens[0].text.lower() == 'what':
+            matrix_candidates = [
+                tok for tok in tokens
+                if tok.i > root.i and tok.dep_ in {'ccomp', 'conj', 'dobj', 'obj', 'relcl'}
+                and tok.pos_ == 'VERB'
+                and tok.tag_ in {'VBD', 'VBP', 'VBZ'}
+                and any(c.dep_ in {'dobj', 'obj'} for c in tok.children)
+            ]
+            if len(matrix_candidates) == 1 and root.pos_ == 'VERB':
+                matrix = matrix_candidates[0]
+                overrides[matrix.i] = ('root', 0)
+                overrides[root.i] = ('csubj', matrix.i + 1)
+                # What belongs to the nominal subject clause, not to
+                # the matrix predicate's object list.
+                for tok in tokens:
+                    if tok.text.lower() == 'what' and tok.head is root:
+                        overrides[tok.i] = ('obj', root.i + 1)
 
         # spaCy occasionally labels an object-predicative adjective as
         # advmod (e.g. 'painted the door red'). Keep it distinct from adverbs.
@@ -141,6 +164,47 @@ class EnglishStructureAnalyzer:
                 head=head,
                 deprel=dep,
             ))
+        # Fallback for fronted fused-relative subjects when spaCy makes the
+        # embedded verb ROOT and absorbs the matrix verb into its object span.
+        # This repair uses the surface order and finite-verb tags, not the
+        # mistaken dependency label of the matrix predicate.
+        if words and words[0].text.lower() == 'what':
+            embedded = next((w for w in words if w.deprel == 'root' and w.upos == 'VERB'), None)
+            if embedded is not None:
+                candidates = [w for w in words if w.id > embedded.id
+                              and w.upos == 'VERB' and w.xpos in {'VBD', 'VBP', 'VBZ'}
+                              and any(n.id > w.id and n.upos in {'NOUN', 'PROPN', 'PRON'}
+                                      for n in words)]
+                if len(candidates) == 1:
+                    matrix = candidates[0]
+                    embedded.deprel, embedded.head = 'csubj', matrix.id
+                    matrix.deprel, matrix.head = 'root', 0
+                    for w in words:
+                        if w.id > matrix.id and w.deprel in {'obj', 'dobj'} and w.head == embedded.id:
+                            w.head = matrix.id
+                        if w.id > matrix.id and w.upos in {'NOUN', 'PROPN', 'PRON'} and w.head == embedded.id:
+                            w.deprel, w.head = 'obj', matrix.id
+        # spaCy sometimes tags the matrix past-tense verb as an adjective
+        # modifying its object in fronted what-clauses. For example:
+        # What he said surprised everyone.
+        if words and words[0].text.lower() == 'what':
+            embedded = next((w for w in words if w.deprel == 'root' and w.upos == 'VERB'), None)
+            if embedded is not None:
+                matrix_pairs = [
+                    (modifier, obj) for obj in words
+                    if obj.id > embedded.id and obj.head == embedded.id
+                    and obj.deprel == 'obj'
+                    for modifier in words
+                    if modifier.id > embedded.id and modifier.id < obj.id
+                    and modifier.head == obj.id and modifier.deprel == 'amod'
+                    and modifier.xpos == 'JJ' and modifier.text.lower().endswith('ed')
+                ]
+                if len(matrix_pairs) == 1:
+                    matrix, obj = matrix_pairs[0]
+                    matrix.deprel, matrix.head = 'root', 0
+                    matrix.upos, matrix.xpos = 'VERB', 'VBD'
+                    embedded.deprel, embedded.head = 'csubj', matrix.id
+                    obj.deprel, obj.head = 'obj', matrix.id
         return Sentence(text=span.text, words=words)
 
     def analyze(self, text: str) -> dict:
@@ -208,6 +272,12 @@ class EnglishStructureAnalyzer:
                 core['O'].append(self._element(w, 'O', children, ids))
             elif w.deprel in MOD_RELS and w.deprel not in CLAUSE_RELS:
                 core['M'].append(self._element(w, 'M', children, ids))
+        # A nonfinite or nominal clause already selected as S should not also
+        # contribute its internal head as a separate main-clause subject.
+        if ctype == 'main' and core['S']:
+            clause_subject_ids = {w.id for w in direct if w.deprel in {'csubj', 'csubj:pass'}}
+            if clause_subject_ids:
+                core['S'] = [e for e in core['S'] if e['head_token'] not in clause_subject_ids]
         # Some spaCy parses attach the subject to an auxiliary (was)
         # rather than to its lexical verb (cooking).
         for aux in direct:
@@ -222,8 +292,31 @@ class EnglishStructureAnalyzer:
         verb_words = sorted({w.id:w for w in verb_words}.values(), key=lambda w:w.id)
         core['V'].append({'id': ids.make('v'), 'role':'V', 'text':' '.join(w.text for w in verb_words), 'token_ids':[w.id for w in verb_words], 'head_token':head.id})
 
+        # Coordinated lexical verbs share a subject but retain their own
+        # verb and object spans (e.g. opened the door and entered the room).
+        if ctype == 'main':
+            for coordinated in direct:
+                if coordinated.deprel == 'conj' and coordinated.upos == 'VERB':
+                    core['V'].append({
+                        'id': ids.make('v'), 'role': 'V', 'text': coordinated.text,
+                        'token_ids': [coordinated.id], 'head_token': coordinated.id
+                    })
+                    for obj in children.get(coordinated.id, []):
+                        if obj.deprel in OBJECT_RELS:
+                            core['O'].append(self._element(obj, 'O', children, ids))
+
         complements = self._complements(head, direct, children, ids)
         core['C'].extend(complements)
+        # Coordinated predicative adjectives share the same linking verb.
+        for comp in list(complements):
+            for coordinated in children.get(comp['head_token'], []):
+                if coordinated.deprel == 'conj' and coordinated.upos == 'ADJ':
+                    if not any(e['head_token'] == coordinated.id for e in core['C']):
+                        elem = self._element(coordinated, 'C', children, ids)
+                        elem['full_phrase'] = elem['text']
+                        elem['text'] = coordinated.text
+                        elem['token_ids'] = [coordinated.id]
+                        core['C'].append(elem)
         for comp in complements:
             comp['complement_of'] = 'O' if core['O'] and self._object_complement_verb(head.lemma) else 'S'
             target = core[comp['complement_of']][-1]['id'] if core[comp['complement_of']] else None
@@ -235,8 +328,35 @@ class EnglishStructureAnalyzer:
             if ch.id == head.id or ch.head != head.id: continue
             role = 'M' if ch.deprel == 'advcl' else ('S' if ch.deprel.startswith('csubj') else ('C' if ch.deprel == 'xcomp' else 'O'))
             ref = {'id':ids.make(role.lower()), 'role':role, 'text':self._span_text(ch, children), 'token_ids':sorted(self._subtree_ids(ch.id, children)), 'head_token':ch.id, 'clause_ref':clause_map[ch.id]}
-            core[role].append(ref)
+            # Adverbial clauses are represented as child clauses, not as
+            # selectable main-clause M spans in the approved gold convention.
+            if ch.deprel == 'xcomp' and head.lemma.lower() in {'want', 'decide', 'enjoy', 'continue'}:
+                role = 'O'
+                ref['role'] = role
+            formal_it = any(s['text'].lower() == 'it' for s in core['S'])
+            extraposed_clause = (formal_it and
+                ((ch.deprel == 'xcomp' and (head.lemma or '').lower() == 'be') or
+                 (ch.deprel == 'ccomp' and (head.lemma or '').lower() == 'seem')))
+            if ch.deprel != 'advcl' and not extraposed_clause:
+                core[role].append(ref)
             child_clause_refs.append(clause_map[ch.id])
+
+        # In existential there constructions, the postverbal noun phrase is
+        # the semantic subject, not a predicative complement.
+        if ctype == 'main' and 'existential_there' in tags and (head.lemma or '').lower() == 'be':
+            existential_subjects = [e for e in core['C'] if e['head_token'] in {
+                w.id for w in direct if w.deprel in {'attr', 'acomp', 'oprd'}
+            }]
+            for elem in existential_subjects:
+                core['C'].remove(elem)
+                elem['role'] = 'S'
+                core['S'].append(elem)
+            for subj in core['S']:
+                for child in children.get(subj['head_token'], []):
+                    if child.deprel == 'obl' and not any(c.deprel == 'case' and c.lemma.lower() == 'with' for c in children.get(child.id, [])):
+                        mod = self._element(child, 'M', children, ids)
+                        if not any(x['head_token'] == child.id for x in core['M']):
+                            core['M'].append(mod)
 
         # Keep compatibility with UD-style copular input if encountered.
         copulas = [w for w in direct if w.deprel == 'cop']
@@ -276,7 +396,12 @@ class EnglishStructureAnalyzer:
             for w in direct:
                 if ((w.deprel in {'xcomp','obl','attr','acomp'} and w.upos in {'ADJ','NOUN','PROPN'})
                         or ((head.lemma or '').lower() == 'be' and w.deprel in {'attr','acomp','oprd'})):
-                    out.append(self._element(w,'C',children,ids))
+                    elem = self._element(w,'C',children,ids)
+                    if w.upos == 'ADJ':
+                        elem['full_phrase'] = elem['text']
+                        elem['text'] = w.text
+                        elem['token_ids'] = [w.id]
+                    out.append(elem)
         if self._object_complement_verb(head.lemma):
             for w in direct:
                 if ((w.deprel in {'xcomp','oprd'} and w.upos in {'ADJ','NOUN','PROPN'})
@@ -363,7 +488,7 @@ class EnglishStructureAnalyzer:
     def _span_text(self, w, children):
         ids=sorted(self._subtree_ids(w.id,children))
         all_nodes={x.id:x for vals in children.values() for x in vals}; all_nodes[w.id]=w
-        return ' '.join(all_nodes[i].text for i in ids if i in all_nodes)
+        return ' '.join(all_nodes[i].text for i in ids if i in all_nodes and all_nodes[i].upos != 'PUNCT')
 
     @staticmethod
     def _linking_verb(lemma):

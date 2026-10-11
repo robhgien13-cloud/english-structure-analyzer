@@ -1,0 +1,41 @@
+id,sentence,S,V,O,C,M,pattern,notes
+G001,She is happy.,She,is,,happy,,SVC,
+G002,The tall boy runs fast.,The tall boy,runs,,,fast,SV,
+G003,I read a book.,I,read,a book,,,SVO,
+G004,She gave me a book.,She,gave,me | a book,,,SVOO,
+G005,I found the book useful.,I,found,the book,useful,,SVOC,
+G006,The dog barked loudly.,The dog,barked,,,loudly,SV,
+G007,My father is a doctor.,My father,is,,a doctor,,SVC,
+G008,We watched the movie.,We,watched,the movie,,,SVO,
+G009,They elected him president.,They,elected,him,president,,SVOC,
+G010,The teacher showed us a picture.,The teacher,showed,us | a picture,,,SVOO,
+G011,The man who smiled left.,The man,left,,,,SV,
+G012,The boy who lives here runs fast.,The boy,runs,,,fast,SV,
+G013,The book that I bought yesterday was expensive.,The book,was,,expensive,,SVC,
+G014,The woman whom we met yesterday is a scientist.,The woman,is,,a scientist,,SVC,
+G015,The house where I grew up has disappeared.,The house,has disappeared,,,,SV,where is a relative adverb; grew up is treated as the clause V under the approved convention.
+G016,"When I arrived home, my mother was cooking dinner.",my mother,was cooking,dinner,,,SVO,
+G017,"Because it was raining, we stayed inside.",we,stayed,,,inside,SV,
+G018,"If you study hard, you will improve.",you,will improve,,,,SV,
+G019,"Although he was tired, he continued working.",he,continued,working,,,SVO,
+G020,I will call you after I finish my homework.,I,will call,you,,,SVO,
+G021,I think that she is right.,I,think,that she is right,,,SVO,
+G022,What he said surprised everyone.,What he said,surprised,everyone,,,SVO,What is the internal object of said and part of the full nominal-clause subject.
+G023,I know where she lives.,I,know,where she lives,,,SVO,"where is an interrogative adverb, not an object inside the subordinate clause."
+G024,That he passed the exam is surprising.,That he passed the exam,is,,surprising,,SVC,
+G025,She asked whether I was ready.,She,asked,whether I was ready,,,SVO,
+G026,There are many books on the desk.,many books,are,,,on the desk,SV,Existential there is not the subject; the subject is many books.
+G027,There was a problem with the plan.,a problem,was,,,,SV,Existential there is not S; with the plan is a postmodifier excluded from S.
+G028,It is important to learn English.,It,is,,important,,SVC,It is the formal subject; to learn English is the notional subject.
+G029,It seems that he is honest.,It,seems,,,,SV,"that he is honest is a content clause, not scored as main O or C."
+G030,It was difficult for me to answer.,It,was,,difficult,,SVC,It is the formal subject; for me to answer is the notional subject.
+G031,She wants to become a doctor.,She,wants,to become a doctor,,,SVO,
+G032,To read books is enjoyable.,To read books,is,,enjoyable,,SVC,
+G033,He decided to leave early.,He,decided,to leave early,,,SVO,
+G034,I enjoy playing tennis.,I,enjoy,playing tennis,,,SVO,
+G035,Swimming in the sea is fun.,Swimming in the sea,is,,fun,,SVC,Entire gerund phrase including in the sea is selected as main S.
+G036,The girl sitting by the window is my sister.,The girl,is,,my sister,,SVC,
+G037,The letter written in English was difficult.,The letter,was,,difficult,,SVC,
+G038,She opened the door and entered the room.,She,opened | entered,the door | the room,,,SVO+SVO,"Two V spans and two O spans are selected separately, linked by and. The subject She is shared."
+G039,He is smart but sometimes careless.,He,is,,smart | careless,,SVC,Two C spans smart and careless are selected separately; sometimes is excluded.
+G040,The book that my teacher recommended yesterday was surprisingly difficult to understand.,The book,was,,difficult,,SVC,Select only difficult as C; retain surprisingly difficult to understand as full complement phrase.

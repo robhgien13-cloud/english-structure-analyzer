@@ -1,0 +1,30 @@
+name: Validate approved English structure gold cases
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - data/approved-gold-g001-g040
+    paths:
+      - 'tests/gold/**'
+      - 'tests/compare_gold.py'
+      - '.github/workflows/gold-validation.yml'
+
+jobs:
+  gold-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install spaCy and English model
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install 'spacy>=3.8,<3.9'
+          python -m spacy download en_core_web_sm
+      - name: Compare approved gold cases
+        run: python tests/compare_gold.py
