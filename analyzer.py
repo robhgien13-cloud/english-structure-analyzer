@@ -184,6 +184,27 @@ class EnglishStructureAnalyzer:
                             w.head = matrix.id
                         if w.id > matrix.id and w.upos in {'NOUN', 'PROPN', 'PRON'} and w.head == embedded.id:
                             w.deprel, w.head = 'obj', matrix.id
+        # spaCy sometimes tags the matrix past-tense verb as an adjective
+        # modifying its object in fronted what-clauses. For example:
+        # What he said surprised everyone.
+        if words and words[0].text.lower() == 'what':
+            embedded = next((w for w in words if w.deprel == 'root' and w.upos == 'VERB'), None)
+            if embedded is not None:
+                matrix_pairs = [
+                    (modifier, obj) for obj in words
+                    if obj.id > embedded.id and obj.head == embedded.id
+                    and obj.deprel == 'obj'
+                    for modifier in words
+                    if modifier.id > embedded.id and modifier.id < obj.id
+                    and modifier.head == obj.id and modifier.deprel == 'amod'
+                    and modifier.xpos == 'JJ' and modifier.text.lower().endswith('ed')
+                ]
+                if len(matrix_pairs) == 1:
+                    matrix, obj = matrix_pairs[0]
+                    matrix.deprel, matrix.head = 'root', 0
+                    matrix.upos, matrix.xpos = 'VERB', 'VBD'
+                    embedded.deprel, embedded.head = 'csubj', matrix.id
+                    obj.deprel, obj.head = 'obj', matrix.id
         return Sentence(text=span.text, words=words)
 
     def analyze(self, text: str) -> dict:
